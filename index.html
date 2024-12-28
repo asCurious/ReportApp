@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش تسک‌های ماهانه</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <h1>گزارش تسک‌های ماهانه</h1>
+        <form id="reportForm">
+            <label for="year">سال را وارد کنید:</label>
+            <input type="text" id="year" name="year" placeholder="مثلاً 1403" required>
+
+            <label for="month">ماه را انتخاب کنید:</label>
+            <select id="month" name="month" required>
+                <option value="01">فروردین</option>
+                <option value="02">اردیبهشت</option>
+                <option value="03">خرداد</option>
+                <option value="04">تیر</option>
+                <option value="05">مرداد</option>
+                <option value="06">شهریور</option>
+                <option value="07">مهر</option>
+                <option value="08">آبان</option>
+                <option value="09">آذر</option>
+                <option value="10">دی</option>
+                <option value="11">بهمن</option>
+                <option value="12">اسفند</option>
+            </select>
+
+            <button type="button" id="generateReport">تولید گزارش</button>
+        </form>
+        <div id="totalTasksContainer"></div>
+        <div class="report-section" id="reportSection"></div>
+    </div>
+    <script src="js/script.js"></script>
+</body>
+</html>
