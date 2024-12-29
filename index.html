@@ -11,29 +11,87 @@
     <div class="container" id="mainContainer">
         <h1>گزارش تسک‌های ماهانه</h1>
         <form id="reportForm">
-            <label for="year">سال را وارد کنید:</label>
-            <input type="text" id="year" name="year" placeholder="مثلاً 1403" required>
-
-            <label for="month">ماه را انتخاب کنید:</label>
-            <select id="month" name="month" required>
-                <option value="01">فروردین</option>
-                <option value="02">اردیبهشت</option>
-                <option value="03">خرداد</option>
-                <option value="04">تیر</option>
-                <option value="05">مرداد</option>
-                <option value="06">شهریور</option>
-                <option value="07">مهر</option>
-                <option value="08">آبان</option>
-                <option value="09">آذر</option>
-                <option value="10">دی</option>
-                <option value="11">بهمن</option>
-                <option value="12">اسفند</option>
-            </select>
-
+            <div>
+                <input type="radio" id="monthlyReport" name="reportType" value="monthly" checked>
+                <label for="monthlyReport">گزارش ماهیانه</label>
+                <input type="radio" id="multiMonthReport" name="reportType" value="multi-month">
+                <label for="multiMonthReport">گزارش چند ماهه</label>
+            </div>
+            <div id="singleMonthInput">
+                <div class="form-group">
+                    <input type="text" id="year" name="year" placeholder=" " required>
+                    <label for="year">سال را وارد کنید</label>
+                </div>
+                <div class="form-group">
+                    <select id="month" name="month" required>
+                        <option value="" disabled selected></option>
+                        <option value="01">فروردین</option>
+                        <option value="02">اردیبهشت</option>
+                        <option value="03">خرداد</option>
+                        <option value="04">تیر</option>
+                        <option value="05">مرداد</option>
+                        <option value="06">شهریور</option>
+                        <option value="07">مهر</option>
+                        <option value="08">آبان</option>
+                        <option value="09">آذر</option>
+                        <option value="10">دی</option>
+                        <option value="11">بهمن</option>
+                        <option value="12">اسفند</option>
+                    </select>
+                    <label for="month">ماه را انتخاب کنید</label>
+                </div>
+            </div>
+            <div id="multiMonthInput" style="display:none;">
+                <div class="form-group">
+                    <input type="text" id="startYear" name="startYear" placeholder=" ">
+                    <label for="startYear">سال شروع</label>
+                </div>
+                <div class="form-group">
+                    <select id="startMonth" name="startMonth">
+                        <option value="" disabled selected></option>
+                        <option value="01">فروردین</option>
+                        <option value="02">اردیبهشت</option>
+                        <option value="03">خرداد</option>
+                        <option value="04">تیر</option>
+                        <option value="05">مرداد</option>
+                        <option value="06">شهریور</option>
+                        <option value="07">مهر</option>
+                        <option value="08">آبان</option>
+                        <option value="09">آذر</option>
+                        <option value="10">دی</option>
+                        <option value="11">بهمن</option>
+                        <option value="12">اسفند</option>
+                    </select>
+                    <label for="startMonth">ماه شروع</label>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="endYear" name="endYear" placeholder=" ">
+                    <label for="endYear">سال پایان</label>
+                </div>
+                <div class="form-group">
+                    <select id="endMonth" name="endMonth">
+                        <option value="" disabled selected></option>
+                        <option value="01">فروردین</option>
+                        <option value="02">اردیبهشت</option>
+                        <option value="03">خرداد</option>
+                        <option value="04">تیر</option>
+                        <option value="05">مرداد</option>
+                        <option value="06">شهریور</option>
+                        <option value="07">مهر</option>
+                        <option value="08">آبان</option>
+                        <option value="09">آذر</option>
+                        <option value="10">دی</option>
+                        <option value="11">بهمن</option>
+                        <option value="12">اسفند</option>
+                    </select>
+                    <label for="endMonth">ماه پایان</label>
+                </div>
+            </div>
             <button type="button" id="generateReport">تولید گزارش</button>
         </form>
-        <div id="totalTasksContainer"></div>
-        <div class="report-section" id="reportSection"></div>
+        <div id="reportSection">
+            <!-- اینجا گزارش‌ها نمایش داده می‌شود -->
+        </div>
     </div>
     <script src="js/script.js"></script>
 </body>

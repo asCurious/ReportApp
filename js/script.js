@@ -1,6 +1,15 @@
+document.getElementById('monthlyReport').addEventListener('change', function() {
+    document.getElementById('singleMonthInput').style.display = 'block';
+    document.getElementById('multiMonthInput').style.display = 'none';
+});
+
+document.getElementById('multiMonthReport').addEventListener('change', function() {
+    document.getElementById('singleMonthInput').style.display = 'none';
+    document.getElementById('multiMonthInput').style.display = 'block';
+});
+
 document.getElementById('generateReport').addEventListener('click', function() {
-    const year = document.getElementById('year').value; // دریافت سال وارد شده
-    const month = document.getElementById('month').value; // دریافت ماه انتخاب شده
+    const reportType = document.querySelector('input[name="reportType"]:checked').value;
     const mainContainer = document.getElementById('mainContainer');
     const reportSection = document.getElementById('reportSection');
     const totalTasksContainer = document.createElement('div');
@@ -12,32 +21,51 @@ document.getElementById('generateReport').addEventListener('click', function() {
     const reportTablesContainer = document.createElement('div');
     reportTablesContainer.className = 'report-tables-container';
 
-    // ساخت نام فایل بر اساس سال و ماه
-    const fileName = `${year}${month}.xlsx`;
+    let fileNames = [];
 
-    // آدرس فایل اکسل در پوشه `excel`
-    const filePath = `xls/${fileName}`;
+    if (reportType === 'monthly') {
+        const year = document.getElementById('year').value;
+        const month = document.getElementById('month').value;
+        fileNames.push(`${year}${month}.xlsx`);
+    } else if (reportType === 'multi-month') {
+        const startYear = document.getElementById('startYear').value;
+        const startMonth = document.getElementById('startMonth').value;
+        const endYear = document.getElementById('endYear').value;
+        const endMonth = document.getElementById('endMonth').value;
 
-    // بارگذاری فایل اکسل با استفاده از Fetch API
-    fetch(filePath)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Network response was not ok ${response.statusText}`);
+        let currentYear = parseInt(startYear);
+        let currentMonth = parseInt(startMonth);
+
+        while (currentYear < parseInt(endYear) || (currentYear === parseInt(endYear) && currentMonth <= parseInt(endMonth))) {
+            fileNames.push(`${currentYear}${currentMonth.toString().padStart(2, '0')}.xlsx`);
+            currentMonth++;
+            if (currentMonth > 12) {
+                currentMonth = 1;
+                currentYear++;
             }
-            return response.arrayBuffer();
-        })
-        .then(data => {
-            const workbook = XLSX.read(data, { type: 'array' });
+        }
+    }
 
-            // نام شیت‌های دو کارمند
+    Promise.all(fileNames.map(fileName => {
+        const filePath = `xls/${fileName}`;
+        return fetch(filePath)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok ${response.statusText}`);
+                }
+                return response.arrayBuffer();
+            })
+            .then(data => XLSX.read(data, { type: 'array' }));
+    })).then(workbooks => {
+        let allData = [];
+        let taskSubjects = [];
+        let totalTasks = 0;
+        let unitTimeSpent = {};
+        let taskTypeCount = Array(8).fill(0); // برای 8 نوع تسک
+
+        workbooks.forEach(workbook => {
             const sheetNames = ['Report(A)', 'Report(K)'];
             const chartsSheetName = 'Charts';
-
-            let allData = [];
-            let taskSubjects = [];
-            let totalTasks = 0;
-            let unitTimeSpent = {};
-            let taskTypeCount = Array(8).fill(0); // برای 8 نوع تسک
 
             // استخراج داده‌ها از شیت Charts
             const chartsSheet = workbook.Sheets[chartsSheetName];
@@ -45,10 +73,8 @@ document.getElementById('generateReport').addEventListener('click', function() {
                 for (let i = 0; i < 8; i++) {
                     const cellAddress = `D${42 + i}`;
                     const cellValue = chartsSheet[cellAddress] ? chartsSheet[cellAddress].v : 0;
-                    taskTypeCount[i] = cellValue;
+                    taskTypeCount[i] += cellValue;
                 }
-            } else {
-                throw new Error(`Sheet ${chartsSheetName} not found`);
             }
 
             sheetNames.forEach(sheetName => {
@@ -77,53 +103,53 @@ document.getElementById('generateReport').addEventListener('click', function() {
                     }
                 });
             });
-
-            // انیمیشن برای تمام صفحه شدن
-            mainContainer.classList.add('fullscreen');
-
-            // ساخت گزارش به صورت جدول
-
-            // جدول نوع تسک و تعداد استفاده شده
-            let taskReport = `<div class="report-table">
-                                <h3>گزارش تعداد تسک‌ها بر اساس نوع:</h3>
-                                <table border="1">
-                                    <thead>
-                                        <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
-                                    </thead>
-                                    <tbody>`;
-            taskSubjects.forEach((subject, index) => {
-                taskReport += `<tr><td>${subject}</td><td>${taskTypeCount[index]}</td></tr>`;
-            });
-            taskReport += `   </tbody>
-                            </table>
-                          </div>`;
-
-            // جدول زمان صرف شده بر اساس واحد
-            let timeReport = `<div class="report-table">
-                                <h3>زمان صرف شده بر اساس واحد:</h3>
-                                <table border="1">
-                                    <thead>
-                                        <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th></tr>
-                                    </thead>
-                                    <tbody>`;
-            for (const unit in unitTimeSpent) {
-                if (unitTimeSpent.hasOwnProperty(unit)) {
-                    timeReport += `<tr><td>${unit}</td><td>${unitTimeSpent[unit]}</td></tr>`;
-                }
-            }
-            timeReport += `   </tbody>
-                            </table>
-                          </div>`;
-
-            // نمایش تعداد کل تسک‌ها و گزارش‌ها
-            totalTasksElement.textContent = `تعداد کل تسک‌ها: ${totalTasks}`;
-            reportSection.innerHTML = '';
-            reportSection.appendChild(totalTasksContainer);
-            reportTablesContainer.innerHTML = taskReport + timeReport;
-            reportSection.appendChild(reportTablesContainer);
-        })
-        .catch(error => {
-            console.error('Error loading the Excel file:', error);
-            reportSection.innerHTML = `<p>خطا در بارگذاری فایل اکسل: ${error.message}</p>`;
         });
+
+        // انیمیشن برای تمام صفحه شدن
+        mainContainer.classList.add('fullscreen');
+
+        // ساخت گزارش به صورت جدول
+
+        // جدول نوع تسک و تعداد استفاده شده
+        let taskReport = `<div class="report-table">
+                            <h3>گزارش تعداد تسک‌ها بر اساس نوع:</h3>
+                            <table border="1">
+                                <thead>
+                                    <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
+                                </thead>
+                                <tbody>`;
+        taskSubjects.forEach((subject, index) => {
+            taskReport += `<tr><td>${subject}</td><td>${taskTypeCount[index]}</td></tr>`;
+        });
+        taskReport += `   </tbody>
+                        </table>
+                      </div>`;
+
+        // جدول زمان صرف شده بر اساس واحد
+        let timeReport = `<div class="report-table">
+                            <h3>زمان صرف شده بر اساس واحد:</h3>
+                            <table border="1">
+                                <thead>
+                                    <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th></tr>
+                                </thead>
+                                <tbody>`;
+        for (const unit in unitTimeSpent) {
+            if (unitTimeSpent.hasOwnProperty(unit)) {
+                timeReport += `<tr><td>${unit}</td><td>${unitTimeSpent[unit]}</td></tr>`;
+            }
+        }
+        timeReport += `   </tbody>
+                        </table>
+                      </div>`;
+
+        // نمایش تعداد کل تسک‌ها و گزارش‌ها
+        totalTasksElement.textContent = `تعداد کل تسک‌ها: ${totalTasks}`;
+        reportSection.innerHTML = '';
+        reportSection.appendChild(totalTasksContainer);
+        reportTablesContainer.innerHTML = taskReport + timeReport;
+        reportSection.appendChild(reportTablesContainer);
+    }).catch(error => {
+        console.error('Error loading the Excel files:', error);
+        reportSection.innerHTML = `<p>خطا در بارگذاری فایل اکسل: ${error.message}</p>`;
+    });
 });

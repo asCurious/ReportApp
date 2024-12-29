@@ -1,20 +1,20 @@
 body {
-    direction: rtl;
     font-family: 'Arial', sans-serif;
-    background-color: #f4f4f9;
+    background: linear-gradient(135deg, #f9f9fb 0%, #e3e3e8 100%);
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    direction: rtl;
 }
 
 .container {
-    width: 300px;
+    width: 320px;
     background: #fff;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     text-align: center;
     transition: all 0.5s ease;
@@ -27,6 +27,66 @@ h1 {
 h3 {
     color: #333;
     margin-top: 20px;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.form-group input[type="text"], .form-group select {
+    padding: 12px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group label {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: #666;
+    background: white;
+    padding: 0 5px;
+    transition: 0.3s;
+    pointer-events: none;
+}
+
+.form-group input[type="text"]:focus + label,
+.form-group input[type="text"]:not(:placeholder-shown) + label,
+.form-group select:focus + label,
+.form-group select:not([value=""]) + label {
+    top: -14px;
+    right: 10px;
+    font-size: 0.8em;
+    color: #333;
+}
+
+input[type="radio"] {
+    display: none;
+}
+
+input[type="radio"] + label {
+    display: inline-block;
+    margin: 0 10px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+input[type="radio"]:checked + label {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
 }
 
 table {
@@ -65,18 +125,11 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 button:hover {
     background-color: #45a049;
-}
-
-input[type="text"], select {
-    padding: 10px;
-    margin: 5px 0 20px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
 }
 
 /* انیمیشن برای تمام صفحه شدن */
@@ -84,6 +137,10 @@ input[type="text"], select {
     width: 100vw;
     height: 100vh;
     overflow: auto;
+}
+
+.fullscreen .container {
+    width: 320px;
 }
 
 .report-section {
