@@ -1,174 +1,197 @@
+@font-face {
+  font-family: Yekan;
+  src: url("../fonts/Yekan.ttf");
+}
+
 body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #f9f9fb 0%, #e3e3e8 100%);
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    direction: rtl;
+  font-family: Yekan;
+  background: linear-gradient(135deg, #f9f9fb 0%, #e3e3e8 100%);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  min-height: 100vh;
+  direction: rtl;
 }
 
 .container {
-    width: 320px;
-    background: #fff;
-    padding: 20px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    text-align: center;
-    transition: all 0.5s ease;
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  padding: 20px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.5s ease;
+  margin: 20px 0;
 }
-
+#formContainer {
+  max-width: 320px;
+  max-height: 600px;
+}
 h1 {
-    color: #333;
+  color: #333;
 }
-
-h3 {
-    color: #333;
-    margin-top: 20px;
+.report_select {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-bottom: 40px;
 }
 
 form {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .form-group {
-    position: relative;
-    margin-bottom: 30px;
+  position: relative;
+  margin-bottom: 30px;
 }
 
-.form-group input[type="text"], .form-group select {
-    padding: 12px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-    box-sizing: border-box;
+.form-group input[type="text"] {
+  padding: 12px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: Yekan;
+}
+
+.form-group select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: Yekan;
+  color: #666;
+}
+
+.form-group select option {
+  text-align: center;
 }
 
 .form-group label {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    font-size: 1em;
-    color: #666;
-    background: white;
-    padding: 0 5px;
-    transition: 0.3s;
-    pointer-events: none;
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  transform: translateY(-50%);
+  font-size: 1em;
+  color: #666;
+  padding: 0 5px;
+  transition: 0.3s;
+  pointer-events: none;
 }
 
 .form-group input[type="text"]:focus + label,
 .form-group input[type="text"]:not(:placeholder-shown) + label,
 .form-group select:focus + label,
 .form-group select:not([value=""]) + label {
-    top: -14px;
-    right: 10px;
-    font-size: 0.8em;
-    color: #333;
+  top: -14px;
+  right: 0;
+  font-size: 1em;
+  color: #333;
 }
 
 input[type="radio"] {
-    display: none;
+  display: none;
 }
 
 input[type="radio"] + label {
-    display: inline-block;
-    margin: 0 10px;
-    cursor: pointer;
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    transition: 0.3s;
+  display: inline-block;
+  margin: 0 10px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: 0.3s;
 }
 
 input[type="radio"]:checked + label {
-    background-color: #4CAF50;
-    color: white;
-    border-color: #4CAF50;
+  background-color: #4caf50;
+  color: white;
+  border-color: #4caf50;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
 }
 
-table, th, td {
-    border: 1px solid #ddd;
+table,
+th,
+td {
+  border: 1px solid #ddd;
 }
 
-th, td {
-    padding: 12px;
-    text-align: center;
-    color: #555;
+th,
+td {
+  padding: 12px;
+  text-align: center;
+  color: #555;
 }
 
 th {
-    background-color: #f2f2f2;
-    font-weight: bold;
+  background-color: #f2f2f2;
+  font-weight: bold;
 }
 
 tr:nth-child(even) {
-    background-color: #f9f9f9;
+  background-color: #f9f9f9;
 }
 
 tr:hover {
-    background-color: #f1f1f1;
+  background-color: #f1f1f1;
 }
 
 button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-family: Yekan;
 }
 
 button:hover {
-    background-color: #45a049;
-}
-
-/* انیمیشن برای تمام صفحه شدن */
-.fullscreen {
-    width: 100vw;
-    height: 100vh;
-    overflow: auto;
-}
-
-.fullscreen .container {
-    width: 320px;
+  background-color: #45a049;
 }
 
 .report-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .report-tables-container {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
 }
 
 .report-table {
-    width: 45%;
-    margin: 10px;
+  width: 45%;
+  margin: 10px;
 }
 
 .total-tasks-container {
-    margin: 20px 0;
-    text-align: center;
+  margin: 10px 0;
 }
 
-p.total-tasks {
-    font-size: 1.5em;
-    color: #4CAF50;
-    font-weight: bold;
-    margin: 20px 0;
-    text-align: center;
+.total-tasks-container div {
+  margin: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+p.total-tasks,
+p.total-time-spent {
+  font-size: 1.2em;
+  color: #4caf50;
+  font-weight: bold;
 }
