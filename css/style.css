@@ -13,11 +13,11 @@ body {
   align-items: flex-start;
   min-height: 100vh;
   direction: rtl;
+  flex-wrap: wrap;
 }
 
 .container {
   width: 100%;
-  max-width: 600px;
   background: #fff;
   padding: 20px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
@@ -29,8 +29,12 @@ body {
 #formContainer {
   position: sticky;
   top: 10px;
-  max-width: 320px;
   max-height: 600px;
+  flex: 0 0 30%;
+}
+#reportContainer{
+    flex: 0 0 60%;
+    max-height: 860px;
 }
 h1 {
   color: #333;
@@ -171,7 +175,7 @@ button:hover {
 
 .report-tables-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   width: 100%;
 }
 
