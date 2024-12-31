@@ -182,7 +182,6 @@ document
         reportSection.appendChild(reportTablesContainer);
       })
       .catch((error) => {
-        console.error("Error loading the Excel files:", error);
-        reportSection.innerHTML = `<p>خطا در بارگذاری فایل اکسل: ${error.message}</p>`;
+        formContainer.innerHTML = `<p>لطفا تاریخ را صحیح وارد کنید</p>`;
       });
   });
