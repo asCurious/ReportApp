@@ -1,3 +1,4 @@
+// تغییر نمایش ورودی ماهانه
 document
   .getElementById("monthlyReport")
   .addEventListener("change", function () {
@@ -5,6 +6,7 @@ document
     document.getElementById("multiMonthInput").style.display = "none";
   });
 
+// تغییر نمایش ورودی چند ماهه
 document
   .getElementById("multiMonthReport")
   .addEventListener("change", function () {
@@ -12,6 +14,7 @@ document
     document.getElementById("multiMonthInput").style.display = "block";
   });
 
+// رویداد کلیک برای تولید گزارش
 document
   .getElementById("generateReport")
   .addEventListener("click", function () {
@@ -24,6 +27,7 @@ document
     document.body.appendChild(loadingOverlay);
     document.body.classList.add("loading");
 
+    // تعیین نوع گزارش بر اساس انتخاب کاربر
     const reportType = document.querySelector(
       'input[name="reportType"]:checked'
     ).value;
@@ -45,6 +49,7 @@ document
 
     let fileNames = [];
 
+    // بررسی نوع گزارش و اضافه کردن فایل‌های مرتبط
     if (reportType === "monthly") {
       const year = document.getElementById("year").value;
       const month = document.getElementById("month").value;
@@ -58,6 +63,7 @@ document
       let currentYear = parseInt(startYear);
       let currentMonth = parseInt(startMonth);
 
+      // ایجاد فایل‌های چند ماهه
       while (
         currentYear < parseInt(endYear) ||
         (currentYear === parseInt(endYear) &&
@@ -74,6 +80,7 @@ document
       }
     }
 
+    // بارگذاری و پردازش فایل‌ها
     Promise.all(
       fileNames.map((fileName) => {
         const filePath = `xls/${fileName}`;
@@ -95,8 +102,9 @@ document
         let totalTasks = 0;
         let totalTimeSpent = 0; // جمع زمان‌های صرف شده
         let unitTimeSpent = {};
-        let taskTypeCount = Array(8).fill(0); // برای 8 نوع تسک
+        let taskTypeCount = Array(9).fill(0); // برای 9 نوع تسک
 
+        // پردازش هر ورک‌بوک
         workbooks.forEach((workbook) => {
           const sheetNames = ["Report(A)", "Report(K)"];
           const chartsSheetName = "Charts";
@@ -104,7 +112,7 @@ document
           // استخراج داده‌ها از شیت Charts
           const chartsSheet = workbook.Sheets[chartsSheetName];
           if (chartsSheet) {
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 9; i++) {
               const cellAddress = `D${42 + i}`;
               const cellValue = chartsSheet[cellAddress]
                 ? chartsSheet[cellAddress].v
@@ -113,13 +121,14 @@ document
             }
           }
 
+          // پردازش شیت‌های Report(A) و Report(K)
           sheetNames.forEach((sheetName) => {
             const worksheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
             // استخراج موضوعات تسک از سطر اول اکسل
             if (taskSubjects.length === 0 && jsonData.length > 0) {
-              taskSubjects = jsonData[0].slice(5, 13);
+              taskSubjects = jsonData[0].slice(5, 14);
             }
 
             jsonData.forEach((row, index) => {
@@ -127,7 +136,7 @@ document
                 // رد شدن از ردیف عنوان‌ها و بررسی پر بودن ستون 1
                 allData.push(row);
                 totalTasks++; // شمارش تعداد کل تسک‌ها
-                const timeSpent = parseFloat(row[13]) || 0; // زمان صرف شده در تسک
+                const timeSpent = parseFloat(row[14]) || 0; // زمان صرف شده در تسک
                 totalTimeSpent += timeSpent; // جمع کردن زمان صرف شده
                 const unit = row[3]; // واحد
 
@@ -147,35 +156,35 @@ document
 
         // جدول نوع تسک و تعداد استفاده شده
         let taskReport = `<div class="report-table">
-                          <h3>گزارش تعداد تسک‌ها بر اساس نوع</h3>
-                          <table border="1">
-                              <thead>
-                                  <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
-                              </thead>
-                              <tbody>`;
+                        <h3>گزارش تعداد تسک‌ها بر اساس نوع</h3>
+                        <table border="1">
+                            <thead>
+                                <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
+                            </thead>
+                            <tbody>`;
         taskSubjects.forEach((subject, index) => {
           taskReport += `<tr><td>${subject}</td><td>${taskTypeCount[index]}</td></tr>`;
         });
         taskReport += `   </tbody>
-                      </table>
-                    </div>`;
+                    </table>
+                  </div>`;
 
         // جدول زمان صرف شده بر اساس واحد
         let timeReport = `<div class="report-table">
-                          <h3>زمان صرف شده بر اساس واحد</h3>
-                          <table border="1">
-                              <thead>
-                                  <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th></tr>
-                              </thead>
-                              <tbody>`;
+                        <h3>زمان صرف شده بر اساس واحد</h3>
+                        <table border="1">
+                            <thead>
+                                <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th></tr>
+                            </thead>
+                            <tbody>`;
         for (const unit in unitTimeSpent) {
           if (unitTimeSpent.hasOwnProperty(unit)) {
             timeReport += `<tr><td>${unit}</td><td>${unitTimeSpent[unit]}</td></tr>`;
           }
         }
         timeReport += `   </tbody>
-                      </table>
-                    </div>`;
+                    </table>
+                  </div>`;
 
         // نمایش تعداد کل تسک‌ها و جمع زمان‌های صرف شده
         totalTasksElement.textContent = `تعداد کل تسک‌ها: ${totalTasks}`;
