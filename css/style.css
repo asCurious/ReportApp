@@ -72,7 +72,7 @@ body.loading .container {
 }
 #reportContainer{
     flex: 0 0 60%;
-    max-height: 860px;
+    max-height: 760px;
 }
 h1 {
   color: #333;
@@ -118,6 +118,7 @@ form {
   outline: none;
   font-size: 1rem;
   transition: 0.5s;
+  cursor: pointer;
 
 }
 
