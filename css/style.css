@@ -41,8 +41,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* بلور صفحه اصلی */
@@ -64,19 +68,22 @@ body.loading .container {
   transition: all 0.5s ease;
   margin: 20px 0;
 }
+
 #formContainer {
   position: sticky;
   top: 10px;
   max-height: 600px;
   flex: 0 0 20%;
 }
-#reportContainer{
-    flex: 0 0 60%;
-    max-height: 760px;
+
+#reportContainer {
+  flex: 0 0 60%;
 }
+
 h1 {
   color: #333;
 }
+
 .report_select {
   display: flex;
   align-items: center;
@@ -93,7 +100,8 @@ form {
   margin-bottom: 30px;
 }
 
-.form-group input[type="text"] {
+.form-group input[type="text"],
+.form-group select {
   padding: 12px 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -103,30 +111,15 @@ form {
   transition: 0.5s;
   outline: none;
 }
-.form-group input[type="text"]:focus{
+
+.form-group input[type="text"]:focus,
+.form-group select:focus {
   border: 1px solid #4caf50;
 }
 
-.form-group select {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
-  font-family: Yekan;
-  color: #666;
-  outline: none;
-  font-size: 1rem;
-  transition: 0.5s;
-  cursor: pointer;
-
-}
-
-.form-group select:focus{
-  border: 1px solid #4caf50;
-}
 .form-group select {
   text-align: center;
+  cursor: pointer;
 }
 
 .form-group label {
@@ -236,6 +229,9 @@ button:hover {
 }
 
 .total-tasks-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
   margin: 10px 0;
 }
 
@@ -251,4 +247,66 @@ p.total-time-spent {
   font-size: 1.2em;
   color: #4caf50;
   font-weight: bold;
+}
+
+/* ریسپانسیو برای اندازه‌های مختلف */
+@media (max-width: 1200px) {
+  .container {
+    flex: 0 0 90%;
+  }
+
+  #formContainer,
+  #reportContainer {
+    flex: 0 0 90%;
+    max-height: none;
+  }
+
+  .report-tables-container {
+    flex-direction: column;
+  }
+
+  .report-table {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .report-tables-container {
+    flex-direction: column;
+  }
+
+  .report-table {
+    width: 100%;
+  }
+
+  .form-group {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5em;
+  }
+
+  button {
+    padding: 8px 16px;
+    font-size: 0.9em;
+  }
+
+  .form-group label {
+    font-size: 0.8em;
+  }
+
+  .form-group input[type="text"],
+  .form-group select {
+    font-size: 0.9em;
+  }
+
+  table,
+  th,
+  td {
+    font-size: 0.8em;
+    padding: 8px;
+  }
 }

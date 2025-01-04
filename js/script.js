@@ -1,69 +1,127 @@
-// تغییر نمایش ورودی ماهانه
-document
-  .getElementById("monthlyReport")
-  .addEventListener("change", function () {
-    document.getElementById("singleMonthInput").style.display = "block";
-    document.getElementById("multiMonthInput").style.display = "none";
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('input[name="reportType"]').forEach((elem) => {
+    elem.addEventListener("change", function () {
+      const isMonthly = this.value === "monthly";
+      document.getElementById("singleMonthInput").style.display = isMonthly
+        ? "block"
+        : "none";
+      document.getElementById("multiMonthInput").style.display = isMonthly
+        ? "none"
+        : "block";
+    });
+  });
+});
+
+const showLoading = () => {
+  const loadingOverlay = document.createElement("div");
+  loadingOverlay.className = "loading-overlay";
+  const loadingSpinner = document.createElement("div");
+  loadingSpinner.className = "loading-spinner";
+  loadingOverlay.appendChild(loadingSpinner);
+  document.body.appendChild(loadingOverlay);
+  document.body.classList.add("loading");
+};
+
+const hideLoading = () => {
+  const loadingOverlay = document.querySelector(".loading-overlay");
+  if (loadingOverlay) {
+    document.body.removeChild(loadingOverlay);
+    document.body.classList.remove("loading");
+  }
+};
+const createInputForm = (year, month) => {
+  return `
+    <div class="form-group">
+      <input type="text" id="reportYear" name="year" placeholder=" " value="${year}" required />
+      <label for="reportYear">سال را وارد کنید</label>
+    </div>
+    <div class="form-group">
+      <div class="select-wrapper">
+        <select id="reportMonth" name="month" required>
+          <option value="" disabled ${!month ? "selected" : ""}></option>
+          ${[
+            "فروردین",
+            "اردیبهشت",
+            "خرداد",
+            "تیر",
+            "مرداد",
+            "شهریور",
+            "مهر",
+            "آبان",
+            "آذر",
+            "دی",
+            "بهمن",
+            "اسفند",
+          ]
+            .map(
+              (m, i) =>
+                `<option value="${(i + 1).toString().padStart(2, "0")}" ${
+                  month === (i + 1).toString().padStart(2, "0")
+                    ? "selected"
+                    : ""
+                }>${m}</option>`
+            )
+            .join("")}
+        </select>
+        <label for="reportMonth">ماه را انتخاب کنید</label>
+      </div>
+    </div>
+  `;
+};
+
+const updateInputForm = (year, month) => {
+  const inputFormContainer = document.createElement("div");
+  inputFormContainer.id = "inputFormContainer";
+  inputFormContainer.innerHTML = createInputForm(year, month);
+
+  const updateButton = inputFormContainer.querySelector("#updateReportBtn");
+  updateButton.addEventListener("click", function () {
+    const newYear = document.getElementById("reportYear").value;
+    const newMonth = document.getElementById("reportMonth").value;
+    generateReport(newYear, newMonth);
   });
 
-// تغییر نمایش ورودی چند ماهه
-document
-  .getElementById("multiMonthReport")
-  .addEventListener("change", function () {
-    document.getElementById("singleMonthInput").style.display = "none";
-    document.getElementById("multiMonthInput").style.display = "block";
-  });
+  const formContainer = document.createElement("div");
+  formContainer.id = "formContainer";
+  formContainer.appendChild(inputFormContainer);
 
-// رویداد کلیک برای تولید گزارش
-document
-  .getElementById("generateReport")
-  .addEventListener("click", function () {
-    // اضافه کردن انیمیشن لودینگ
-    const loadingOverlay = document.createElement("div");
-    loadingOverlay.className = "loading-overlay";
-    const loadingSpinner = document.createElement("div");
-    loadingSpinner.className = "loading-spinner";
-    loadingOverlay.appendChild(loadingSpinner);
-    document.body.appendChild(loadingOverlay);
-    document.body.classList.add("loading");
+  const reportSection = document.getElementById("reportSection");
+  reportSection.appendChild(formContainer);
+};
+const generateReport = async (year, month) => {
+  showLoading();
 
-    // تعیین نوع گزارش بر اساس انتخاب کاربر
+  try {
     const reportType = document.querySelector(
       'input[name="reportType"]:checked'
     ).value;
-    const formContainer = document.getElementById("formContainer");
     const reportContainer = document.getElementById("reportContainer");
-    const reportSummary = document.getElementById("reportSummary");
     const reportSection = document.getElementById("reportSection");
-    const totalTasksContainer = document.createElement("div");
-    const totalTasksElement = document.createElement("p");
-    totalTasksElement.className = "total-tasks";
-    const totalTimeSpentElement = document.createElement("p");
-    totalTimeSpentElement.className = "total-time-spent";
-
-    totalTasksContainer.appendChild(totalTasksElement);
-    totalTasksContainer.appendChild(totalTimeSpentElement);
-
-    const reportTablesContainer = document.createElement("div");
-    reportTablesContainer.className = "report-tables-container";
 
     let fileNames = [];
 
-    // بررسی نوع گزارش و اضافه کردن فایل‌های مرتبط
     if (reportType === "monthly") {
-      const year = document.getElementById("year").value;
-      const month = document.getElementById("month").value;
+      if (!year || !month) {
+        console.error("Year or month input is missing.");
+        hideLoading();
+        return;
+      }
       fileNames.push(`${year}${month}.xlsx`);
-    } else if (reportType === "multi-month") {
+    } else {
       const startYear = document.getElementById("startYear").value;
       const startMonth = document.getElementById("startMonth").value;
       const endYear = document.getElementById("endYear").value;
       const endMonth = document.getElementById("endMonth").value;
 
+      if (!startYear || !startMonth || !endYear || !endMonth) {
+        console.error("Start or end year/month input is missing.");
+        hideLoading();
+        return;
+      }
+
       let currentYear = parseInt(startYear);
       let currentMonth = parseInt(startMonth);
 
-      // ایجاد فایل‌های چند ماهه
       while (
         currentYear < parseInt(endYear) ||
         (currentYear === parseInt(endYear) &&
@@ -80,130 +138,166 @@ document
       }
     }
 
-    // بارگذاری و پردازش فایل‌ها
-    Promise.all(
-      fileNames.map((fileName) => {
+    const workbooks = await Promise.all(
+      fileNames.map(async (fileName) => {
         const filePath = `xls/${fileName}`;
-        return fetch(filePath)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                `Network response was not ok ${response.statusText}`
-              );
-            }
-            return response.arrayBuffer();
-          })
-          .then((data) => XLSX.read(data, { type: "array" }));
+        const response = await fetch(filePath);
+        if (!response.ok)
+          throw new Error(`Network response was not ok ${response.statusText}`);
+        const data = await response.arrayBuffer();
+        return XLSX.read(data, { type: "array" });
       })
-    )
-      .then((workbooks) => {
-        let allData = [];
-        let taskSubjects = [];
-        let totalTasks = 0;
-        let totalTimeSpent = 0; // جمع زمان‌های صرف شده
-        let unitTimeSpent = {};
-        let taskTypeCount = Array(9).fill(0); // برای 9 نوع تسک
+    );
 
-        // پردازش هر ورک‌بوک
-        workbooks.forEach((workbook) => {
-          const sheetNames = ["Report(A)", "Report(K)"];
-          const chartsSheetName = "Charts";
+    let allData = [];
+    let taskSubjects = [];
+    let totalTasks = 0;
+    let totalTimeSpent = 0;
+    let unitTimeSpent = {};
+    let taskTypeCount = Array(9).fill(0);
 
-          // استخراج داده‌ها از شیت Charts
-          const chartsSheet = workbook.Sheets[chartsSheetName];
-          if (chartsSheet) {
-            for (let i = 0; i < 9; i++) {
-              const cellAddress = `D${42 + i}`;
-              const cellValue = chartsSheet[cellAddress]
-                ? chartsSheet[cellAddress].v
-                : 0;
-              taskTypeCount[i] += cellValue;
-            }
-          }
+    workbooks.forEach((workbook) => {
+      const sheetNames = ["Report(A)", "Report(K)"];
+      const chartsSheetName = "Charts";
 
-          // پردازش شیت‌های Report(A) و Report(K)
-          sheetNames.forEach((sheetName) => {
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-            // استخراج موضوعات تسک از سطر اول اکسل
-            if (taskSubjects.length === 0 && jsonData.length > 0) {
-              taskSubjects = jsonData[0].slice(5, 14);
-            }
-
-            jsonData.forEach((row, index) => {
-              if (index !== 0 && row[1]) {
-                // رد شدن از ردیف عنوان‌ها و بررسی پر بودن ستون 1
-                allData.push(row);
-                totalTasks++; // شمارش تعداد کل تسک‌ها
-                const timeSpent = parseFloat(row[14]) || 0; // زمان صرف شده در تسک
-                totalTimeSpent += timeSpent; // جمع کردن زمان صرف شده
-                const unit = row[3]; // واحد
-
-                if (unit) {
-                  // اطمینان حاصل کردن که واحد مقدار صحیح دارد
-                  if (!unitTimeSpent[unit]) {
-                    unitTimeSpent[unit] = 0;
-                  }
-                  unitTimeSpent[unit] += timeSpent;
-                }
-              }
-            });
-          });
-        });
-
-        // ساخت گزارش به صورت جدول
-
-        // جدول نوع تسک و تعداد استفاده شده
-        let taskReport = `<div class="report-table">
-                        <h3>گزارش تعداد تسک‌ها بر اساس نوع</h3>
-                        <table border="1">
-                            <thead>
-                                <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
-                            </thead>
-                            <tbody>`;
-        taskSubjects.forEach((subject, index) => {
-          taskReport += `<tr><td>${subject}</td><td>${taskTypeCount[index]}</td></tr>`;
-        });
-        taskReport += `   </tbody>
-                    </table>
-                  </div>`;
-
-        // جدول زمان صرف شده بر اساس واحد
-        let timeReport = `<div class="report-table">
-                        <h3>زمان صرف شده بر اساس واحد</h3>
-                        <table border="1">
-                            <thead>
-                                <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th></tr>
-                            </thead>
-                            <tbody>`;
-        for (const unit in unitTimeSpent) {
-          if (unitTimeSpent.hasOwnProperty(unit)) {
-            timeReport += `<tr><td>${unit}</td><td>${unitTimeSpent[unit]}</td></tr>`;
-          }
+      const chartsSheet = workbook.Sheets[chartsSheetName];
+      if (chartsSheet) {
+        for (let i = 0; i < 9; i++) {
+          const cellAddress = `D${42 + i}`;
+          const cellValue = chartsSheet[cellAddress]
+            ? chartsSheet[cellAddress].v
+            : 0;
+          taskTypeCount[i] += cellValue;
         }
-        timeReport += `   </tbody>
-                    </table>
-                  </div>`;
+      }
 
-        // نمایش تعداد کل تسک‌ها و جمع زمان‌های صرف شده
-        totalTasksElement.textContent = `تعداد کل تسک‌ها: ${totalTasks}`;
-        totalTimeSpentElement.textContent = `مجموع زمان صرف شده: ${totalTimeSpent} دقیقه`;
-        reportSummary.innerHTML = "";
-        reportSummary.appendChild(totalTasksContainer);
-        reportTablesContainer.innerHTML = taskReport + timeReport;
-        reportSection.innerHTML = "";
-        reportSection.appendChild(reportTablesContainer);
+      sheetNames.forEach((sheetName) => {
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-        // حذف انیمیشن لودینگ پس از پایان کار
-        document.body.removeChild(loadingOverlay);
-        document.body.classList.remove("loading");
-        reportContainer.style.display = "block";
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        formContainer.innerHTML = `<p>خطا در بارگذاری داده‌ها. لطفا دوباره تلاش کنید.</p>`;
-        document.body.removeChild(loadingOverlay);
-        document.body.classList.remove("loading");
+        if (taskSubjects.length === 0 && jsonData.length > 0) {
+          taskSubjects = jsonData[0].slice(5, 14);
+        }
+
+        jsonData.forEach((row, index) => {
+          if (index !== 0 && row[1]) {
+            allData.push(row);
+            totalTasks++;
+            const timeSpent = parseFloat(row[14]) || 0;
+            totalTimeSpent += timeSpent;
+            const unit = row[3];
+
+            if (unit) {
+              if (!unitTimeSpent[unit]) {
+                unitTimeSpent[unit] = 0;
+              }
+              unitTimeSpent[unit] += timeSpent;
+            }
+          }
+        });
       });
+    });
+
+    const taskReport = `
+      <div class="report-table">
+        <h3>گزارش تعداد تسک‌ها بر اساس نوع</h3>
+        <table border="1">
+          <thead>
+            <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
+          </thead>
+          <tbody>
+            ${taskSubjects
+              .map(
+                (subject, index) =>
+                  `<tr><td>${subject}</td><td>${taskTypeCount[index]}</td></tr>`
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    const timeReport = `
+      <div class="report-table">
+        <h3>زمان صرف شده بر اساس واحد</h3>
+        <table border="1">
+          <thead>
+            <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th></tr>
+          </thead>
+          <tbody>
+            ${Object.keys(unitTimeSpent)
+              .map(
+                (unit) =>
+                  `<tr><td>${unit}</td><td>${unitTimeSpent[unit]}</td></tr>`
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    const totalTasksContainer = document.createElement("div");
+    totalTasksContainer.className = "total-tasks-container";
+    totalTasksContainer.innerHTML = `
+      <p class="total-tasks">تعداد کل تسک‌ها: ${totalTasks}</p>
+      <p class="total-time-spent">مجموع زمان صرف شده: ${totalTimeSpent} دقیقه</p>
+    `;
+
+    const reportSummary = document.createElement("div");
+    reportSummary.className = "report-summary";
+    reportSummary.appendChild(totalTasksContainer);
+
+    const inputFormContainer = document.createElement("div");
+    inputFormContainer.className = "input-form-container";
+    inputFormContainer.innerHTML = createInputForm(year, month);
+
+    const updateButton = document.createElement("button");
+    updateButton.id = "updateReportBtn";
+    updateButton.textContent = "به‌روزرسانی گزارش";
+    updateButton.addEventListener("click", function () {
+      const newYear = document.getElementById("reportYear").value;
+      const newMonth = document.getElementById("reportMonth").value;
+      generateReport(newYear, newMonth);
+    });
+    inputFormContainer.appendChild(updateButton);
+
+    reportSection.innerHTML = "";
+    reportSection.appendChild(inputFormContainer);
+    reportSection.appendChild(reportSummary);
+
+    const reportTablesContainer = document.createElement("div");
+    reportTablesContainer.className = "report-tables-container";
+    reportTablesContainer.innerHTML = taskReport + timeReport;
+    reportSection.appendChild(reportTablesContainer);
+
+    hideLoading();
+    reportContainer.style.display = "block";
+    document.getElementById("formContainer").style.display = "none"; // پنهان کردن فرم اولیه
+  } catch (error) {
+    console.error("Error:", error);
+    document.getElementById(
+      "formContainer"
+    ).innerHTML = `<p>خطا در بارگذاری داده‌ها. لطفا دوباره تلاش کنید.</p>`;
+    hideLoading();
+  }
+};
+
+document
+  .getElementById("generateReport")
+  .addEventListener("click", function () {
+    const reportType = document.querySelector(
+      'input[name="reportType"]:checked'
+    ).value;
+
+    if (reportType === "monthly") {
+      const year = document.getElementById("year").value;
+      const month = document.getElementById("month").value;
+      generateReport(year, month);
+    } else {
+      const startYear = document.getElementById("startYear").value;
+      const startMonth = document.getElementById("startMonth").value;
+      const endYear = document.getElementById("endYear").value;
+      const endMonth = document.getElementById("endMonth").value;
+      generateReport(startYear, startMonth, endYear, endMonth);
+    }
   });
