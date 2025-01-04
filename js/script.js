@@ -1,3 +1,4 @@
+//سوییچ بین حالت ماهانه و چند ماهه
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll('input[name="reportType"]').forEach((elem) => {
     elem.addEventListener("change", function () {
@@ -11,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
+//نمایش لودر
 const showLoading = () => {
   const loadingOverlay = document.createElement("div");
   loadingOverlay.className = "loading-overlay";
@@ -21,7 +22,7 @@ const showLoading = () => {
   document.body.appendChild(loadingOverlay);
   document.body.classList.add("loading");
 };
-
+// پنهان کردن لودر
 const hideLoading = () => {
   const loadingOverlay = document.querySelector(".loading-overlay");
   if (loadingOverlay) {
@@ -29,6 +30,7 @@ const hideLoading = () => {
     document.body.classList.remove("loading");
   }
 };
+//ساخت فرم اینپوت در فرم گزارش
 const createInputForm = (year, month) => {
   return `
     <div class="form-group">
@@ -68,7 +70,7 @@ const createInputForm = (year, month) => {
     </div>
   `;
 };
-
+//آپدیت فرم 
 const updateInputForm = (year, month) => {
   const inputFormContainer = document.createElement("div");
   inputFormContainer.id = "inputFormContainer";
@@ -137,7 +139,7 @@ const generateReport = async (year, month) => {
         }
       }
     }
-
+// گرفتن اطلاعات از اکسل و نام فایل و نام شیت ها 
     const workbooks = await Promise.all(
       fileNames.map(async (fileName) => {
         const filePath = `xls/${fileName}`;
@@ -197,7 +199,7 @@ const generateReport = async (year, month) => {
         });
       });
     });
-
+// ساخت جدول گزارش
     const taskReport = `
       <div class="report-table">
         <h3>گزارش تعداد تسک‌ها بر اساس نوع</h3>
@@ -235,7 +237,7 @@ const generateReport = async (year, month) => {
         </table>
       </div>
     `;
-
+//ساخت گزارش و خلاصه گزارش
     const totalTasksContainer = document.createElement("div");
     totalTasksContainer.className = "total-tasks-container";
     totalTasksContainer.innerHTML = `
