@@ -272,7 +272,10 @@ const generateReport = async (year, month) => {
     reportTablesContainer.className = "report-tables-container";
     reportTablesContainer.innerHTML = taskReport + timeReport;
     reportSection.appendChild(reportTablesContainer);
-
+    //ارتباط بین دکمه پرینت گزارش و فانکشن گزارش
+    document
+      .getElementById("printReportBtn")
+      .addEventListener("click", printReport);
     hideLoading();
     reportContainer.style.display = "block";
     document.getElementById("formContainer").style.display = "none"; // پنهان کردن فرم اولیه
@@ -405,6 +408,3 @@ document
     }
   });
 // وصل کردن دکمه پرینت به رویداد پرینت
-document
-  .getElementById("printReportBtn")
-  .addEventListener("click", printReport);
