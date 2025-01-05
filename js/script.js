@@ -70,7 +70,7 @@ const createInputForm = (year, month) => {
     </div>
   `;
 };
-//آپدیت فرم 
+//آپدیت فرم
 const updateInputForm = (year, month) => {
   const inputFormContainer = document.createElement("div");
   inputFormContainer.id = "inputFormContainer";
@@ -139,7 +139,7 @@ const generateReport = async (year, month) => {
         }
       }
     }
-// گرفتن اطلاعات از اکسل و نام فایل و نام شیت ها 
+    // گرفتن اطلاعات از اکسل و نام فایل و نام شیت ها
     const workbooks = await Promise.all(
       fileNames.map(async (fileName) => {
         const filePath = `xls/${fileName}`;
@@ -199,7 +199,7 @@ const generateReport = async (year, month) => {
         });
       });
     });
-// ساخت جدول گزارش
+    // ساخت جدول گزارش
     const taskReport = `
       <div class="report-table">
         <h3>گزارش تعداد تسک‌ها بر اساس نوع</h3>
@@ -237,7 +237,7 @@ const generateReport = async (year, month) => {
         </table>
       </div>
     `;
-//ساخت گزارش و خلاصه گزارش
+    //ساخت گزارش و خلاصه گزارش
     const totalTasksContainer = document.createElement("div");
     totalTasksContainer.className = "total-tasks-container";
     totalTasksContainer.innerHTML = `
@@ -262,6 +262,7 @@ const generateReport = async (year, month) => {
       generateReport(newYear, newMonth);
     });
     inputFormContainer.appendChild(updateButton);
+    inputFormContainer.appendChild(createPrintButton());
 
     reportSection.innerHTML = "";
     reportSection.appendChild(inputFormContainer);
@@ -283,6 +284,106 @@ const generateReport = async (year, month) => {
     hideLoading();
   }
 };
+//ساخت محتوی پرینت گزارش
+const generatePrintContent = (
+  year,
+  month,
+  startYear,
+  startMonth,
+  endYear,
+  endMonth,
+  totalTasks,
+  totalTimeSpent,
+  taskReport,
+  timeReport
+) => {
+  let reportTitle = "";
+  if (startYear && startMonth && endYear && endMonth) {
+    reportTitle = `گزارش از ${startMonth} / ${startYear} تا ${endMonth} / ${endYear}`;
+  } else {
+    reportTitle = `${month} / ${year}`;
+  }
+
+  return `
+    <div>
+      <h1>${reportTitle}</h1>
+      <div class="summery">
+        <p>${totalTasks}</p>
+        <p>${totalTimeSpent}</p>
+      </div>
+      <div>${taskReport}</div>
+      <div>${timeReport}</div>
+    </div>
+  `;
+};
+const printReport = () => {
+  const year = document.getElementById("reportYear").value;
+  const month = document.getElementById("reportMonth").value;
+  const startYear = document.getElementById("startYear")
+    ? document.getElementById("startYear").value
+    : null;
+  const startMonth = document.getElementById("startMonth")
+    ? document.getElementById("startMonth").value
+    : null;
+  const endYear = document.getElementById("endYear")
+    ? document.getElementById("endYear").value
+    : null;
+  const endMonth = document.getElementById("endMonth")
+    ? document.getElementById("endMonth").value
+    : null;
+
+  const totalTasks = document.querySelector(".total-tasks").textContent;
+  const totalTimeSpent =
+    document.querySelector(".total-time-spent").textContent;
+  const taskReport = document.querySelector(
+    ".report-table:nth-of-type(1)"
+  ).outerHTML;
+  const timeReport = document.querySelector(
+    ".report-table:nth-of-type(2)"
+  ).outerHTML;
+
+  const printContent = generatePrintContent(
+    year,
+    month,
+    startYear,
+    startMonth,
+    endYear,
+    endMonth,
+    totalTasks,
+    totalTimeSpent,
+    taskReport,
+    timeReport
+  );
+
+  const printWindow = window.open("", "_blank");
+  printWindow.document.write(`
+    <html>
+      <head>
+      <title>پرینت گزارش</title>
+        <style>
+          body { font-family: B Yekan; direction: rtl; text-align: right; }
+          .report-table { margin-top: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 0.8rem;}
+          th { background-color: #f2f2f2; }
+          .summery{display: flex; justify-content: space-around;};
+        </style>
+      </head>
+      <body>${printContent}</body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
+//ساخت دکمه پرینت
+const createPrintButton = () => {
+  const printButton = document.createElement("button");
+  printButton.id = "printReportBtn";
+  printButton.textContent = "پرینت گزارش";
+  printButton.addEventListener("click", printReport);
+  return printButton;
+};
 
 document
   .getElementById("generateReport")
@@ -303,3 +404,7 @@ document
       generateReport(startYear, startMonth, endYear, endMonth);
     }
   });
+// وصل کردن دکمه پرینت به رویداد پرینت
+document
+  .getElementById("printReportBtn")
+  .addEventListener("click", printReport);
