@@ -267,6 +267,7 @@ p.total-time-spent {
 
   .report-tables-container {
     flex-direction: column;
+    align-items: center;
   }
 
   .report-table {
