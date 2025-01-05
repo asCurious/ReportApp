@@ -8,6 +8,7 @@
     <script src="./js/xlsx.full.min.js"></script>
   </head>
   <body>
+    <!--کانتینر اصلی-->
     <div class="container" id="formContainer">
       <h1>گزارش تسک‌ واحدها</h1>
       <form id="reportForm">
@@ -106,8 +107,11 @@
         <button type="button" id="generateReport">تولید گزارش</button>
       </form>
     </div>
+    <!--کانتینر گزارش-->
     <div class="container" id="reportContainer" style="display: none">
+      <!--کانتینر خلاصه گزارش-->
       <div id="reportSummary" class="total-tasks-container"></div>
+      <!--کانتینر گزارش ساخته شده-->
       <div id="reportSection"></div>
     </div>
     <script src="js/script.js"></script>
