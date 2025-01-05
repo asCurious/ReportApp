@@ -156,7 +156,7 @@ const generateReport = async (year, month) => {
     let totalTasks = 0;
     let totalTimeSpent = 0;
     let unitTimeSpent = {};
-    let taskTypeCount = Array(9).fill(0);
+    let taskTypeCount = Array(10).fill(0);
 
     workbooks.forEach((workbook) => {
       const sheetNames = ["Report(A)", "Report(K)"];
@@ -164,7 +164,7 @@ const generateReport = async (year, month) => {
 
       const chartsSheet = workbook.Sheets[chartsSheetName];
       if (chartsSheet) {
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < 10; i++) {
           const cellAddress = `D${42 + i}`;
           const cellValue = chartsSheet[cellAddress]
             ? chartsSheet[cellAddress].v
@@ -178,14 +178,14 @@ const generateReport = async (year, month) => {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
         if (taskSubjects.length === 0 && jsonData.length > 0) {
-          taskSubjects = jsonData[0].slice(5, 14);
+          taskSubjects = jsonData[0].slice(5, 15);
         }
 
         jsonData.forEach((row, index) => {
           if (index !== 0 && row[1]) {
             allData.push(row);
             totalTasks++;
-            const timeSpent = parseFloat(row[14]) || 0;
+            const timeSpent = parseFloat(row[15]) || 0;
             totalTimeSpent += timeSpent;
             const unit = row[3];
 
