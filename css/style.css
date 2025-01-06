@@ -160,6 +160,7 @@ input[type="radio"]:checked + label {
 }
 /*استایل اینپوت در فرم گزارش */
 .input-form-container button {
+  width: 130px;
   font-size: 0.7rem;
   padding: 0.7rem;
 }
@@ -310,8 +311,8 @@ p.total-time-spent {
   }
   #updateReportBtn,
   #printReportBtn {
-    width: 100px;
-    padding: 8px 12px;
+    width: 110px;
+    padding: 10px 12px;
     font-size: 0.6rem;
   }
   .form-group label {
