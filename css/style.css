@@ -13,7 +13,6 @@ body {
   align-items: flex-start;
   min-height: 100vh;
   direction: rtl;
-  flex-wrap: wrap;
 }
 
 /* لودینگ */
@@ -104,6 +103,7 @@ h1 {
   font-family: Yekan;
   transition: 0.5s;
   outline: none;
+  appearance: none;
 }
 
 .form-group input[type="text"]:focus,
@@ -150,6 +150,7 @@ input[type="radio"] + label {
   border: 1px solid #ccc;
   border-radius: 5px;
   transition: 0.3s;
+  width: 120px;
 }
 
 input[type="radio"]:checked + label {
@@ -216,6 +217,7 @@ button {
   cursor: pointer;
   transition: background-color 0.3s;
   font-family: Yekan;
+  font-weight: bold;
 }
 
 button:hover {
@@ -302,19 +304,43 @@ p.total-time-spent {
   }
 
   button {
+    width: 100px;
     padding: 8px 16px;
     font-size: 0.7em;
   }
-
+  #updateReportBtn,
+  #printReportBtn {
+    width: 100px;
+    padding: 8px 12px;
+    font-size: 0.6rem;
+  }
   .form-group label {
     font-size: 0.8em;
   }
-
+  .form-group input[type="text"]:focus + label,
+  .form-group input[type="text"]:not(:placeholder-shown) + label,
+  .form-group select:focus + label,
+  .form-group select:not([value=""]) + label {
+    font-size: 0.8rem;
+  }
   .form-group input[type="text"],
   .form-group select {
-    font-size: 0.9em;
+    font-size: 0.8em;
+    padding: 6px 10px;
   }
-
+  input[type="radio"] + label {
+    width: 90px;
+    font-size: 0.8rem;
+  }
+  .total-tasks-container {
+    flex-direction: column;
+  }
+  p.total-tasks,
+  p.total-time-spent {
+    font-size: 1em;
+    color: #4caf50;
+    font-weight: bold;
+  }
   table,
   th,
   td {
