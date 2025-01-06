@@ -140,10 +140,18 @@ const generateReport = async (year, month) => {
       }
     }
     // گرفتن اطلاعات از اکسل و نام فایل و نام شیت ها
+
+    const fetchOptions = {
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+    };
+
     const workbooks = await Promise.all(
       fileNames.map(async (fileName) => {
-        const filePath = `xls/${fileName}`;
-        const response = await fetch(filePath);
+        const filePath = `xls/${fileName}?t=${new Date().getTime()}`;
+        const response = await fetch(filePath, fetchOptions);
         if (!response.ok)
           throw new Error(`Network response was not ok ${response.statusText}`);
         const data = await response.arrayBuffer();
