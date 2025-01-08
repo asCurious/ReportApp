@@ -380,7 +380,7 @@ const printReport = () => {
           th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 0.8rem;}
           th { background-color: #f2f2f2; }
           .summery{display: flex; justify-content: space-around;}
-          .report_Container{display: flex; justify-content: space-around; align-items: center;}
+          .report_Container{display: flex; justify-content: space-around; align-items: flex-start;}
           .task_report , .time_report{width: 40%}
         </style>
       </head>
