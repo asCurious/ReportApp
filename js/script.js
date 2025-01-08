@@ -322,8 +322,10 @@ const generatePrintContent = (
         <p>${totalTasks}</p>
         <p>${totalTimeSpent}</p>
       </div>
-      <div>${taskReport}</div>
-      <div>${timeReport}</div>
+      <div class="report_Container">
+        <div class="task_report">${taskReport}</div>
+        <div class="time_report">${timeReport}</div>
+      </div>
     </div>
   `;
 };
@@ -373,11 +375,13 @@ const printReport = () => {
       <title>پرینت گزارش</title>
         <style>
           body { font-family: B Yekan; direction: rtl; text-align: right; }
-          .report-table { margin-top: 20px; }
+          .report-table { margin-top: 20px; display:flex; flex-direction: column; align-items: center;}
           table { width: 100%; border-collapse: collapse; }
           th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 0.8rem;}
           th { background-color: #f2f2f2; }
-          .summery{display: flex; justify-content: space-around;};
+          .summery{display: flex; justify-content: space-around;}
+          .report_Container{display: flex; justify-content: space-around; align-items: center;}
+          .task_report , .time_report{width: 40%}
         </style>
       </head>
       <body>${printContent}</body>
@@ -415,4 +419,3 @@ document
       generateReport(startYear, startMonth, endYear, endMonth);
     }
   });
-// وصل کردن دکمه پرینت به رویداد پرینت
