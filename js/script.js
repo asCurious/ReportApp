@@ -207,6 +207,16 @@ const generateReport = async (year, month) => {
         });
       });
     });
+    // تبدیل زمان صرف شده به ساعت و دقیقه با شرط 100 دقیقه
+    let timeSpentText;
+
+    if (totalTimeSpent > 100) {
+      const totalHours = Math.floor(totalTimeSpent / 60); // هر ساعت 60 دقیقه است
+      const remainingMinutes = totalTimeSpent % 60;
+      timeSpentText = `${totalHours} ساعت و ${remainingMinutes} دقیقه`;
+    } else {
+      timeSpentText = `${totalTimeSpent} دقیقه`;
+    }
     // ساخت جدول گزارش
     const taskReport = `
       <div class="report-table">
@@ -249,9 +259,9 @@ const generateReport = async (year, month) => {
     const totalTasksContainer = document.createElement("div");
     totalTasksContainer.className = "total-tasks-container";
     totalTasksContainer.innerHTML = `
-      <p class="total-tasks">تعداد کل تسک‌ها: ${totalTasks}</p>
-      <p class="total-time-spent">مجموع زمان صرف شده: ${totalTimeSpent} دقیقه</p>
-    `;
+  <p class="total-tasks">تعداد کل تسک‌ها: ${totalTasks}</p>
+  <p class="total-time-spent">مجموع زمان صرف شده: ${timeSpentText}</p>
+`;
 
     const reportSummary = document.createElement("div");
     reportSummary.className = "report-summary";
