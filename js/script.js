@@ -220,9 +220,9 @@ const generateReport = async (year, month) => {
     // ساخت جدول گزارش
     const taskReport = `
       <div class="report-table">
-        <h3>گزارش تعداد تسک‌ها بر اساس نوع</h3>
         <table border="1">
           <thead>
+            <tr><th colspan="2" class= "headTable">گزارش تعداد تسک‌ها بر اساس نوع</th></tr>
             <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
           </thead>
           <tbody>
@@ -239,9 +239,9 @@ const generateReport = async (year, month) => {
 
     const timeReport = `
       <div class="report-table">
-        <h3>زمان صرف شده بر اساس واحد</h3>
         <table border="1">
           <thead>
+            <tr><th colspan="2" class= "headTable">زمان صرف شده بر اساس واحد</th></tr>
             <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th></tr>
           </thead>
           <tbody>
