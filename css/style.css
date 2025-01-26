@@ -253,6 +253,26 @@ p.total-time-spent {
   font-weight: bold;
 }
 
+.error-popup {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: red;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: none;
+  width: 15rem;
+  text-align: center;
+}
+
+.error-popup.show {
+  display: block;
+}
+
 /* ریسپانسیو برای اندازه‌های مختلف */
 @media (max-width: 1360px) {
   #formContainer {
@@ -354,5 +374,9 @@ p.total-time-spent {
   .total-tasks-container .total-tasks,
   .total-tasks-container .total-time-spent {
     font-size: 1rem;
+  }
+  .error-popup {
+    font-size: 0.7em;
+    width: 10rem;
   }
 }

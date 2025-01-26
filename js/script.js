@@ -30,6 +30,24 @@ const hideLoading = () => {
     document.body.classList.remove("loading");
   }
 };
+//نمایش ارور به صورت پاپ آپ
+const showErrorPopup = (message) => {
+  const errorPopup = document.createElement("div");
+  errorPopup.className = "error-popup";
+  errorPopup.textContent = message;
+  document.body.appendChild(errorPopup);
+
+  setTimeout(() => {
+    errorPopup.classList.add("show");
+    setTimeout(() => {
+      errorPopup.classList.remove("show");
+      setTimeout(() => {
+        document.body.removeChild(errorPopup);
+      }, 300);
+    }, 3000); // زمان نمایش پاپ‌آپ به میلی‌ثانیه
+  }, 100);
+};
+
 //ساخت فرم اینپوت در فرم گزارش
 const createInputForm = (year, month) => {
   return `
@@ -299,9 +317,7 @@ const generateReport = async (year, month) => {
     document.getElementById("formContainer").style.display = "none"; // پنهان کردن فرم اولیه
   } catch (error) {
     console.error("Error:", error);
-    document.getElementById(
-      "formContainer"
-    ).innerHTML = `<p>خطا در بارگذاری داده‌ها. لطفا دوباره تلاش کنید.</p>`;
+    showErrorPopup(`خطا در بارگذاری لطفا دوباره تلاش کنید`);
     hideLoading();
   }
 };
