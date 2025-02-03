@@ -1,4 +1,4 @@
-//سوییچ بین حالت ماهانه و چند ماهه
+// تعویض بین حالت ماهانه و چند ماهه
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll('input[name="reportType"]').forEach((elem) => {
     elem.addEventListener("change", function () {
@@ -12,7 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-//نمایش لودر
+
+// نمایش لودر
 const showLoading = () => {
   const loadingOverlay = document.createElement("div");
   loadingOverlay.className = "loading-overlay";
@@ -22,6 +23,7 @@ const showLoading = () => {
   document.body.appendChild(loadingOverlay);
   document.body.classList.add("loading");
 };
+
 // پنهان کردن لودر
 const hideLoading = () => {
   const loadingOverlay = document.querySelector(".loading-overlay");
@@ -30,7 +32,8 @@ const hideLoading = () => {
     document.body.classList.remove("loading");
   }
 };
-//نمایش ارور به صورت پاپ آپ
+
+// نمایش ارور به صورت پاپ‌آپ
 const showErrorPopup = (message) => {
   const errorPopup = document.createElement("div");
   errorPopup.className = "error-popup";
@@ -47,8 +50,7 @@ const showErrorPopup = (message) => {
     }, 3000); // زمان نمایش پاپ‌آپ به میلی‌ثانیه
   }, 100);
 };
-
-//ساخت فرم اینپوت در فرم گزارش
+// ساخت فرم اینپوت در فرم گزارش
 const createInputForm = (year, month) => {
   return `
     <div class="form-group">
@@ -88,13 +90,16 @@ const createInputForm = (year, month) => {
     </div>
   `;
 };
-//آپدیت فرم
+
+// آپدیت فرم
 const updateInputForm = (year, month) => {
   const inputFormContainer = document.createElement("div");
   inputFormContainer.id = "inputFormContainer";
   inputFormContainer.innerHTML = createInputForm(year, month);
 
-  const updateButton = inputFormContainer.querySelector("#updateReportBtn");
+  const updateButton = document.createElement("button");
+  updateButton.id = "updateReportBtn";
+  updateButton.textContent = "به‌روزرسانی گزارش";
   updateButton.addEventListener("click", function () {
     const newYear = document.getElementById("reportYear").value;
     const newMonth = document.getElementById("reportMonth").value;
@@ -108,7 +113,14 @@ const updateInputForm = (year, month) => {
   const reportSection = document.getElementById("reportSection");
   reportSection.appendChild(formContainer);
 };
-const generateReport = async (year, month) => {
+const generateReport = async (
+  year,
+  month,
+  startYear,
+  startMonth,
+  endYear,
+  endMonth
+) => {
   showLoading();
 
   try {
@@ -128,20 +140,13 @@ const generateReport = async (year, month) => {
       }
       fileNames.push(`${year}${month}.xlsx`);
     } else {
-      const startYear = document.getElementById("startYear").value;
-      const startMonth = document.getElementById("startMonth").value;
-      const endYear = document.getElementById("endYear").value;
-      const endMonth = document.getElementById("endMonth").value;
-
       if (!startYear || !startMonth || !endYear || !endMonth) {
         console.error("Start or end year/month input is missing.");
         hideLoading();
         return;
       }
-
       let currentYear = parseInt(startYear);
       let currentMonth = parseInt(startMonth);
-
       while (
         currentYear < parseInt(endYear) ||
         (currentYear === parseInt(endYear) &&
@@ -157,8 +162,8 @@ const generateReport = async (year, month) => {
         }
       }
     }
-    // گرفتن اطلاعات از اکسل و نام فایل و نام شیت ها
 
+    // گرفتن اطلاعات از اکسل و نام فایل و نام شیت ها
     const fetchOptions = {
       headers: {
         "Cache-Control": "no-cache",
@@ -225,22 +230,21 @@ const generateReport = async (year, month) => {
         });
       });
     });
-    // تبدیل زمان صرف شده به ساعت و دقیقه با شرط 100 دقیقه
-    let timeSpentText;
 
+    let timeSpentText;
     if (totalTimeSpent > 100) {
-      const totalHours = Math.floor(totalTimeSpent / 60); // هر ساعت 60 دقیقه است
+      const totalHours = Math.floor(totalTimeSpent / 60);
       const remainingMinutes = totalTimeSpent % 60;
       timeSpentText = `${totalHours} ساعت و ${remainingMinutes} دقیقه`;
     } else {
       timeSpentText = `${totalTimeSpent} دقیقه`;
     }
-    // ساخت جدول گزارش
+
     const taskReport = `
       <div class="report-table">
         <table border="1">
           <thead>
-            <tr><th colspan="2" class= "headTable">گزارش تعداد تسک‌ها بر اساس نوع</th></tr>
+            <tr><th colspan="2" class="headTable">گزارش تعداد تسک‌ها بر اساس نوع</th></tr>
             <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
           </thead>
           <tbody>
@@ -254,12 +258,11 @@ const generateReport = async (year, month) => {
         </table>
       </div>
     `;
-
     const timeReport = `
       <div class="report-table">
         <table border="1">
           <thead>
-            <tr><th colspan="2" class= "headTable">زمان صرف شده بر اساس واحد</th></tr>
+            <tr><th colspan="2" class="headTable">زمان صرف شده بر اساس واحد</th></tr>
             <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th></tr>
           </thead>
           <tbody>
@@ -273,13 +276,13 @@ const generateReport = async (year, month) => {
         </table>
       </div>
     `;
-    //ساخت گزارش و خلاصه گزارش
+
     const totalTasksContainer = document.createElement("div");
     totalTasksContainer.className = "total-tasks-container";
     totalTasksContainer.innerHTML = `
-  <p class="total-tasks">تعداد کل تسک‌ها: ${totalTasks}</p>
-  <p class="total-time-spent">مجموع زمان صرف شده: ${timeSpentText}</p>
-`;
+      <p class="total-tasks">تعداد کل تسک‌ها: ${totalTasks}</p>
+      <p class="total-time-spent">مجموع زمان صرف شده: ${timeSpentText}</p>
+    `;
 
     const reportSummary = document.createElement("div");
     reportSummary.className = "report-summary";
@@ -308,7 +311,7 @@ const generateReport = async (year, month) => {
     reportTablesContainer.className = "report-tables-container";
     reportTablesContainer.innerHTML = taskReport + timeReport;
     reportSection.appendChild(reportTablesContainer);
-    //ارتباط بین دکمه پرینت گزارش و فانکشن گزارش
+
     document
       .getElementById("printReportBtn")
       .addEventListener("click", printReport);
@@ -321,7 +324,7 @@ const generateReport = async (year, month) => {
     hideLoading();
   }
 };
-//ساخت محتوی پرینت گزارش
+// ساخت محتوی پرینت گزارش
 const generatePrintContent = (
   year,
   month,
@@ -355,6 +358,8 @@ const generatePrintContent = (
     </div>
   `;
 };
+
+// چاپ گزارش
 const printReport = () => {
   const year = document.getElementById("reportYear").value;
   const month = document.getElementById("reportMonth").value;
@@ -417,7 +422,7 @@ const printReport = () => {
   printWindow.print();
 };
 
-//ساخت دکمه پرینت
+// ساخت دکمه پرینت
 const createPrintButton = () => {
   const printButton = document.createElement("button");
   printButton.id = "printReportBtn";
@@ -426,6 +431,7 @@ const createPrintButton = () => {
   return printButton;
 };
 
+// ایجاد گزارش
 document
   .getElementById("generateReport")
   .addEventListener("click", function () {
