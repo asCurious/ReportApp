@@ -252,6 +252,11 @@ p.total-time-spent {
   color: #4caf50;
   font-weight: bold;
 }
+.number-wrapper {
+  display: inline-block;
+  width: 50px; /* اندازه ثابت بر اساس محتوای عدد */
+  text-align: right;
+}
 
 .error-popup {
   position: fixed;

@@ -50,6 +50,30 @@ const showErrorPopup = (message) => {
     }, 3000); // زمان نمایش پاپ‌آپ به میلی‌ثانیه
   }, 100);
 };
+//انیمیشن شمارش اعداد
+const animateRandomNumber = (element, end, duration) => {
+  const startTime = Date.now();
+  const interval = setInterval(() => {
+    const elapsedTime = Date.now() - startTime;
+    if (elapsedTime >= duration) {
+      clearInterval(interval);
+      element.textContent = end;
+    } else {
+      const randomValue = Math.floor(Math.random() * (end + 100)); // شروع تصادفی از عددی بزرگتر از صفر
+      element.textContent = randomValue;
+    }
+  }, 50); // هر 50 میلی‌ثانیه یک عدد تصادفی نمایش داده می‌شود
+};
+
+const animateAllRandomNumbers = () => {
+  document.querySelectorAll(".animated-number").forEach((element) => {
+    const endValue = parseInt(element.getAttribute("data-end-value"), 10);
+    if (!isNaN(endValue)) {
+      animateRandomNumber(element, endValue, 1500); // 1500 میلی‌ثانیه زمان انیمیشن
+    }
+  });
+};
+
 // ساخت فرم اینپوت در فرم گزارش
 const createInputForm = (year, month) => {
   return `
@@ -251,7 +275,7 @@ const generateReport = async (
             ${taskSubjects
               .map(
                 (subject, index) =>
-                  `<tr><td>${subject}</td><td>${taskTypeCount[index]}</td></tr>`
+                  `<tr><td>${subject}</td><td class="animated-number" data-end-value="${taskTypeCount[index]}">0</td></tr>`
               )
               .join("")}
           </tbody>
@@ -269,7 +293,7 @@ const generateReport = async (
             ${Object.keys(unitTimeSpent)
               .map(
                 (unit) =>
-                  `<tr><td>${unit}</td><td>${unitTimeSpent[unit]}</td></tr>`
+                  `<tr><td>${unit}</td><td class="animated-number" data-end-value="${unitTimeSpent[unit]}">0</td></tr>`
               )
               .join("")}
           </tbody>
@@ -280,8 +304,8 @@ const generateReport = async (
     const totalTasksContainer = document.createElement("div");
     totalTasksContainer.className = "total-tasks-container";
     totalTasksContainer.innerHTML = `
-      <p class="total-tasks">تعداد کل تسک‌ها: ${totalTasks}</p>
-      <p class="total-time-spent">مجموع زمان صرف شده: ${timeSpentText}</p>
+      <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
+      <p class="total-time-spent">مجموع زمان صرف شده: <span class="animated-number number-wrapper" data-end-value="${timeSpentText}">0</span></p>
     `;
 
     const reportSummary = document.createElement("div");
@@ -318,6 +342,8 @@ const generateReport = async (
     hideLoading();
     reportContainer.style.display = "block";
     document.getElementById("formContainer").style.display = "none"; // پنهان کردن فرم اولیه
+    //اضافه کردن انیمیشن
+    animateAllRandomNumbers();
   } catch (error) {
     console.error("Error:", error);
     showErrorPopup(`خطا در بارگذاری لطفا دوباره تلاش کنید`);
