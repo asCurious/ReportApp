@@ -257,7 +257,10 @@ p.total-time-spent {
   width: 50px; /* اندازه ثابت بر اساس محتوای عدد */
   text-align: right;
 }
-
+.time-wrapper {
+  display: inline-block;
+  width: 30px; /* اندازه ثابت بر اساس محتوای عدد */
+}
 .error-popup {
   position: fixed;
   bottom: 20px;

@@ -255,13 +255,15 @@ const generateReport = async (
       });
     });
 
-    let timeSpentText;
+    // بررسی و تعریف متغیرهای زمان صرف شده
+    let totalHours = 0;
+    let remainingMinutes = 0;
+    let timeSpentText = `${totalTimeSpent} دقیقه`;
+
     if (totalTimeSpent > 100) {
-      const totalHours = Math.floor(totalTimeSpent / 60);
-      const remainingMinutes = totalTimeSpent % 60;
+      totalHours = Math.floor(totalTimeSpent / 60);
+      remainingMinutes = totalTimeSpent % 60;
       timeSpentText = `${totalHours} ساعت و ${remainingMinutes} دقیقه`;
-    } else {
-      timeSpentText = `${totalTimeSpent} دقیقه`;
     }
 
     const taskReport = `
@@ -303,10 +305,20 @@ const generateReport = async (
 
     const totalTasksContainer = document.createElement("div");
     totalTasksContainer.className = "total-tasks-container";
-    totalTasksContainer.innerHTML = `
-      <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
-      <p class="total-time-spent">مجموع زمان صرف شده: <span class="animated-number number-wrapper" data-end-value="${timeSpentText}">0</span></p>
-    `;
+    if (totalTimeSpent > 100) {
+      totalTasksContainer.innerHTML = `
+    <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
+    <p class="total-time-spent">مجموع زمان صرف شده: 
+      <span class="animated-number time-wrapper" data-end-value="${totalHours}">0</span> ساعت و 
+      <span class="animated-number time-wrapper" data-end-value="${remainingMinutes}">0</span> دقیقه
+    </p>
+  `;
+    } else {
+      totalTasksContainer.innerHTML = `
+    <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
+    <p class="total-time-spent">مجموع زمان صرف شده: <span class="animated-number time-wrapper" data-end-value="${totalTimeSpent}">0</span> دقیقه</p>
+  `;
+    }
 
     const reportSummary = document.createElement("div");
     reportSummary.className = "report-summary";
