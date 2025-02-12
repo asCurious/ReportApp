@@ -212,6 +212,7 @@ const generateReport = async (
     let totalTimeSpent = 0;
     let unitTimeSpent = {};
     let taskTypeCount = Array(10).fill(0);
+    let unitTaskCounts = {};
 
     workbooks.forEach((workbook) => {
       const sheetNames = ["Report(A)", "Report(K)"];
@@ -225,6 +226,23 @@ const generateReport = async (
             ? chartsSheet[cellAddress].v
             : 0;
           taskTypeCount[i] += cellValue;
+        }
+
+        for (let i = 41; i <= 53; i++) {
+          const unitNameCell = `G${i}`;
+          const taskCountCell = `H${i}`;
+          const unitName = chartsSheet[unitNameCell]
+            ? chartsSheet[unitNameCell].v
+            : "";
+          const taskCount = chartsSheet[taskCountCell]
+            ? chartsSheet[taskCountCell].v
+            : 0;
+          if (unitName) {
+            if (!unitTaskCounts[unitName]) {
+              unitTaskCounts[unitName] = 0;
+            }
+            unitTaskCounts[unitName] += taskCount;
+          }
         }
       }
 
@@ -267,41 +285,50 @@ const generateReport = async (
     }
 
     const taskReport = `
-      <div class="report-table">
-        <table border="1">
-          <thead>
-            <tr><th colspan="2" class="headTable">گزارش تعداد تسک‌ها بر اساس نوع</th></tr>
-            <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
-          </thead>
-          <tbody>
-            ${taskSubjects
-              .map(
-                (subject, index) =>
-                  `<tr><td>${subject}</td><td class="animated-number" data-end-value="${taskTypeCount[index]}">0</td></tr>`
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
+  <div class="report-table">
+    <table border="1">
+      <thead>
+        <tr><th colspan="2" class="headTable">گزارش تعداد تسک‌ها بر اساس نوع</th></tr>
+        <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
+      </thead>
+      <tbody>
+        ${taskSubjects
+          .map(
+            (subject, index) =>
+              `<tr><td>${subject}</td><td class="animated-number" data-end-value="${taskTypeCount[index]}">0</td></tr>`
+          )
+          .join("")}
+      </tbody>
+    </table>
+  </div>
+`;
     const timeReport = `
-      <div class="report-table">
-        <table border="1">
-          <thead>
-            <tr><th colspan="2" class="headTable">زمان صرف شده بر اساس واحد</th></tr>
-            <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th></tr>
-          </thead>
-          <tbody>
-            ${Object.keys(unitTimeSpent)
-              .map(
-                (unit) =>
-                  `<tr><td>${unit}</td><td class="animated-number" data-end-value="${unitTimeSpent[unit]}">0</td></tr>`
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
+  <div class="report-table">
+    <table border="1">
+      <thead>
+        <tr><th colspan="3" class="headTable">گزارش زمانی و تعداد تسک‌ها بر اساس واحد</th></tr>
+        <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th><th>تعداد تسک</th></tr>
+      </thead>
+      <tbody>
+        ${Object.keys(unitTimeSpent)
+          .map(
+            (unit) => `
+              <tr>
+                <td>${unit}</td>
+                <td class="animated-number" data-end-value="${
+                  unitTimeSpent[unit]
+                }">0</td>
+                <td class="animated-number" data-end-value="${
+                  unitTaskCounts[unit] || 0
+                }">0</td>
+              </tr>
+            `
+          )
+          .join("")}
+      </tbody>
+    </table>
+  </div>
+`;
 
     const totalTasksContainer = document.createElement("div");
     totalTasksContainer.className = "total-tasks-container";
@@ -354,8 +381,10 @@ const generateReport = async (
     hideLoading();
     reportContainer.style.display = "block";
     document.getElementById("formContainer").style.display = "none"; // پنهان کردن فرم اولیه
-    //اضافه کردن انیمیشن
+
+    // اضافه کردن انیمیشن
     animateAllRandomNumbers();
+
   } catch (error) {
     console.error("Error:", error);
     showErrorPopup(`خطا در بارگذاری لطفا دوباره تلاش کنید`);
@@ -486,6 +515,6 @@ document
       const startMonth = document.getElementById("startMonth").value;
       const endYear = document.getElementById("endYear").value;
       const endMonth = document.getElementById("endMonth").value;
-      generateReport(startYear, startMonth, endYear, endMonth);
+      generateReport(null, null, startYear, startMonth, endYear, endMonth);
     }
   });
