@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
 const showLoading = () => {
   const loadingOverlay = document.createElement("div");
   loadingOverlay.className = "loading-overlay";
@@ -28,6 +29,7 @@ const hideLoading = () => {
     document.body.classList.remove("loading");
   }
 };
+
 const showErrorPopup = (message) => {
   const errorPopup = document.createElement("div");
   errorPopup.className = "error-popup";
@@ -41,9 +43,10 @@ const showErrorPopup = (message) => {
       setTimeout(() => {
         document.body.removeChild(errorPopup);
       }, 300);
-    }, 3000); // زمان نمایش پاپ‌آپ به میلی‌ثانیه
+    }, 3000);
   }, 100);
 };
+
 const animateRandomNumber = (element, end, duration) => {
   const startTime = Date.now();
   const interval = setInterval(() => {
@@ -52,17 +55,17 @@ const animateRandomNumber = (element, end, duration) => {
       clearInterval(interval);
       element.textContent = end;
     } else {
-      const randomValue = Math.floor(Math.random() * (end + 100)); // شروع تصادفی از عددی بزرگتر از صفر
+      const randomValue = Math.floor(Math.random() * (end + 100));
       element.textContent = randomValue;
     }
-  }, 50); // هر 50 میلی‌ثانیه یک عدد تصادفی نمایش داده می‌شود
+  }, 50);
 };
 
 const animateAllRandomNumbers = () => {
   document.querySelectorAll(".animated-number").forEach((element) => {
     const endValue = parseInt(element.getAttribute("data-end-value"), 10);
     if (!isNaN(endValue)) {
-      animateRandomNumber(element, endValue, 1500); // 1500 میلی‌ثانیه زمان انیمیشن
+      animateRandomNumber(element, endValue, 1500);
     }
   });
 };
@@ -192,6 +195,7 @@ const createInputForm = (
     `;
   }
 };
+
 const updateInputForm = (
   year,
   month,
@@ -291,21 +295,13 @@ const generateReport = async (
     let taskTypeCount = Array(10).fill(0);
     let unitTaskCounts = {};
 
+    // خواندن اطلاعات از شیت charts
+    const chartsSheetName = "Charts";
     workbooks.forEach((workbook) => {
-      const sheetNames = ["Report(A)", "Report(K)"];
-      const chartsSheetName = "Charts";
-
       const chartsSheet = workbook.Sheets[chartsSheetName];
-      if (chartsSheet) {
-        for (let i = 0; i < 10; i++) {
-          const cellAddress = `D${42 + i}`;
-          const cellValue = chartsSheet[cellAddress]
-            ? chartsSheet[cellAddress].v
-            : 0;
-          taskTypeCount[i] += cellValue;
-        }
 
-        for (let i = 41; i <= 53; i++) {
+      if (chartsSheet) {
+        for (let i = 42; i <= 53; i++) {
           const unitNameCell = `G${i}`;
           const taskCountCell = `H${i}`;
           const unitName = chartsSheet[unitNameCell]
@@ -315,15 +311,14 @@ const generateReport = async (
             ? chartsSheet[taskCountCell].v
             : 0;
           if (unitName) {
-            if (!unitTaskCounts[unitName]) {
-              unitTaskCounts[unitName] = 0;
-            }
-            unitTaskCounts[unitName] += taskCount;
+            unitTaskCounts[unitName] = taskCount;
+            unitTimeSpent[unitName] = 0; // مقدار اولیه زمان را صفر قرار می‌دهیم
           }
         }
       }
 
-      sheetNames.forEach((sheetName) => {
+      // پردازش داده‌ها از شیت‌های دیگر (Report(A) و Report(K))
+      ["Report(A)", "Report(K)"].forEach((sheetName) => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
@@ -360,68 +355,70 @@ const generateReport = async (
       timeSpentText = `${totalHours} ساعت و ${remainingMinutes} دقیقه`;
     }
 
+    // ساخت گزارش تعداد تسک‌ها بر اساس نوع
     const taskReport = `
-      <div class="report-table">
-        <table border="1">
-          <thead>
-            <tr><th colspan="2" class="headTable">گزارش تعداد تسک‌ها بر اساس نوع</th></tr>
-            <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
-          </thead>
-          <tbody>
-            ${taskSubjects
-              .map(
-                (subject, index) =>
-                  `<tr><td>${subject}</td><td class="animated-number" data-end-value="${taskTypeCount[index]}">0</td></tr>`
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
+  <div class="report-table">
+    <table border="1">
+      <thead>
+        <tr><th colspan="2" class="headTable">گزارش تعداد تسک‌ها بر اساس نوع</th></tr>
+        <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
+      </thead>
+      <tbody>
+        ${taskSubjects
+          .map(
+            (subject, index) =>
+              `<tr><td>${subject}</td><td class="animated-number" data-end-value="${taskTypeCount[index]}">0</td></tr>`
+          )
+          .join("")}
+      </tbody>
+    </table>
+  </div>
+`;
 
+    // ساخت گزارش زمانی و تعداد تسک‌ها بر اساس واحد
     const timeReport = `
-      <div class="report-table">
-        <table border="1">
-          <thead>
-            <tr><th colspan="3" class="headTable">گزارش زمانی و تعداد تسک‌ها بر اساس واحد</th></tr>
-            <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th><th>تعداد تسک</th></tr>
-          </thead>
-          <tbody>
-            ${Object.keys(unitTimeSpent)
-              .map(
-                (unit) => `
-                  <tr>
-                    <td>${unit}</td>
-                    <td class="animated-number" data-end-value="${
-                      unitTimeSpent[unit]
-                    }">0</td>
-                    <td class="animated-number" data-end-value="${
-                      unitTaskCounts[unit] || 0
-                    }">0</td>
-                  </tr>
-                `
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
+  <div class="report-table">
+    <table border="1">
+      <thead>
+        <tr><th colspan="3" class="headTable">گزارش زمانی و تعداد تسک‌ها بر اساس واحد</th></tr>
+        <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th><th>تعداد تسک</th></tr>
+      </thead>
+      <tbody>
+        ${Object.keys(unitTimeSpent)
+          .map(
+            (unit) => `
+          <tr>
+            <td>${unit}</td>
+            <td class="animated-number" data-end-value="${
+              unitTimeSpent[unit]
+            }">0</td>
+            <td class="animated-number" data-end-value="${
+              unitTaskCounts[unit] || 0
+            }">0</td>
+          </tr>
+        `
+          )
+          .join("")}
+      </tbody>
+    </table>
+  </div>
+`;
 
     const totalTasksContainer = document.createElement("div");
     totalTasksContainer.className = "total-tasks-container";
     if (totalTimeSpent > 100) {
       totalTasksContainer.innerHTML = `
-        <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
-        <p class="total-time-spent">مجموع زمان صرف شده: 
-          <span class="animated-number time-wrapper" data-end-value="${totalHours}">0</span> ساعت و 
-          <span class="animated-number time-wrapper" data-end-value="${remainingMinutes}">0</span> دقیقه
-        </p>
-      `;
+    <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
+    <p class="total-time-spent">مجموع زمان صرف شده: 
+      <span class="animated-number time-wrapper" data-end-value="${totalHours}">0</span> ساعت و 
+      <span class="animated-number time-wrapper" data-end-value="${remainingMinutes}">0</span> دقیقه
+    </p>
+  `;
     } else {
       totalTasksContainer.innerHTML = `
-        <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
-        <p class="total-time-spent">مجموع زمان صرف شده: <span class="animated-number time-wrapper" data-end-value="${totalTimeSpent}">0</span> دقیقه</p>
-      `;
+    <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
+    <p class="total-time-spent">مجموع زمان صرف شده: <span class="animated-number time-wrapper" data-end-value="${totalTimeSpent}">0</span> دقیقه</p>
+  `;
     }
 
     const reportSummary = document.createElement("div");
@@ -517,8 +514,6 @@ const generatePrintContent = (
     </div>
   `;
 };
-
-// چاپ گزارش
 const printReport = () => {
   const year = document.getElementById("reportYear").value;
   const month = document.getElementById("reportMonth").value;
@@ -562,16 +557,16 @@ const printReport = () => {
   printWindow.document.write(`
     <html>
       <head>
-      <title>پرینت گزارش</title>
+        <title>پرینت گزارش</title>
         <style>
           body { font-family: B Yekan; direction: rtl; text-align: right; }
-          .report-table { margin-top: 20px; display:flex; flex-direction: column; align-items: center;}
+          .report-table { margin-top: 20px; display:flex; flex-direction: column; align-items: center; }
           table { width: 100%; border-collapse: collapse; }
-          th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 0.8rem;}
+          th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 0.8rem; }
           th { background-color: #f2f2f2; }
-          .summery{display: flex; justify-content: space-around;}
-          .report_Container{display: flex; justify-content: space-around; align-items: flex-start;}
-          .task_report , .time_report{width: 40%}
+          .summery { display: flex; justify-content: space-around; }
+          .report_Container { display: flex; justify-content: space-around; align-items: flex-start; }
+          .task_report, .time_report { width: 40%; }
         </style>
       </head>
       <body>${printContent}</body>
@@ -581,7 +576,6 @@ const printReport = () => {
   printWindow.print();
 };
 
-// ساخت دکمه پرینت
 const createPrintButton = () => {
   const printButton = document.createElement("button");
   printButton.id = "printReportBtn";
