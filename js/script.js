@@ -214,37 +214,6 @@ const updateInputForm = (
     endYear,
     endMonth
   );
-
-  const updateButton = document.createElement("button");
-  updateButton.id = "updateReportBtn";
-  updateButton.textContent = "به‌روزرسانی گزارش";
-  updateButton.addEventListener("click", function () {
-    const reportType = document.querySelector(
-      'input[name="reportType"]:checked'
-    ).value;
-
-    if (reportType === "monthly") {
-      const newYear = document.getElementById("reportYear").value;
-      const newMonth = document.getElementById("reportMonth").value;
-      generateReport(newYear, newMonth);
-    } else {
-      const newStartYear = document.getElementById("startYear").value;
-      const newStartMonth = document.getElementById("startMonth").value;
-      const newEndYear = document.getElementById("endYear").value;
-      const newEndMonth = document.getElementById("endMonth").value;
-      generateReport(
-        null,
-        null,
-        newStartYear,
-        newStartMonth,
-        newEndYear,
-        newEndMonth
-      );
-    }
-  });
-
-  inputFormContainer.appendChild(updateButton);
-  document.getElementById("reportSection").appendChild(inputFormContainer);
 };
 const generateReport = async (
   year,
@@ -495,7 +464,7 @@ const generateReport = async (
       }
     });
     inputFormContainer.appendChild(updateButton);
-
+    inputFormContainer.appendChild(createPrintButton());
     reportSection.innerHTML = "";
     reportSection.appendChild(inputFormContainer);
     reportSection.appendChild(reportSummary);
