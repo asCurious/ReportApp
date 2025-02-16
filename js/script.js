@@ -1,3 +1,4 @@
+//سووییچ بین یک ماهه و چند ماهه
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll('input[name="reportType"]').forEach((elem) => {
     elem.addEventListener("change", function () {
@@ -11,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
+//نمایش انیمیشن لودینگ
 const showLoading = () => {
   const loadingOverlay = document.createElement("div");
   loadingOverlay.className = "loading-overlay";
@@ -21,7 +22,7 @@ const showLoading = () => {
   document.body.appendChild(loadingOverlay);
   document.body.classList.add("loading");
 };
-
+//پنهان کردن انیمیشن لودینگ
 const hideLoading = () => {
   const loadingOverlay = document.querySelector(".loading-overlay");
   if (loadingOverlay) {
@@ -29,7 +30,7 @@ const hideLoading = () => {
     document.body.classList.remove("loading");
   }
 };
-
+//نمایش ارور به صورت پاپ آپ زمان دار
 const showErrorPopup = (message) => {
   const errorPopup = document.createElement("div");
   errorPopup.className = "error-popup";
@@ -46,7 +47,7 @@ const showErrorPopup = (message) => {
     }, 3000);
   }, 100);
 };
-
+//تابع نمایش اعداد به صورت رندوم زمان دار
 const animateRandomNumber = (element, end, duration) => {
   const startTime = Date.now();
   const interval = setInterval(() => {
@@ -69,6 +70,7 @@ const animateAllRandomNumbers = () => {
     }
   });
 };
+//ساخت فرم اینپوت در گزارش برای بروزرسانی
 const createInputForm = (
   reportType,
   year,
@@ -195,7 +197,7 @@ const createInputForm = (
     `;
   }
 };
-
+//جایگزاری فرم آپدیت در فرم اصلی
 const updateInputForm = (
   year,
   month,
@@ -219,6 +221,7 @@ const updateInputForm = (
     endMonth
   );
 };
+//تابع تولید گزارش
 const generateReport = async (
   year,
   month,
@@ -230,6 +233,7 @@ const generateReport = async (
   showLoading();
 
   try {
+    //تشخیص یک ماهه یا چند ماهه
     const reportType = document.querySelector(
       'input[name="reportType"]:checked'
     ).value;
@@ -237,7 +241,7 @@ const generateReport = async (
     const reportSection = document.getElementById("reportSection");
 
     let fileNames = [];
-
+    //شرط اول برای یک ماهه و پر کردن نام فایل
     if (reportType === "monthly") {
       if (!year || !month) {
         console.error("Year or month input is missing.");
@@ -245,6 +249,7 @@ const generateReport = async (
         return;
       }
       fileNames.push(`${year}${month}.xlsx`);
+      //شرط دوم چندماهه برای پر کردن نام فایل
     } else {
       if (!startYear || !startMonth || !endYear || !endMonth) {
         console.error("Start or end year/month input is missing.");
@@ -286,65 +291,66 @@ const generateReport = async (
         return XLSX.read(data, { type: "array" });
       })
     );
-
-    let allData = [];
-    let taskSubjects = [];
+    //متغیرهای اصلی
     let totalTasks = 0;
     let totalTimeSpent = 0;
     let unitTimeSpent = {};
     let taskTypeCount = Array(10).fill(0);
     let unitTaskCounts = {};
-
-    // خواندن اطلاعات از شیت charts
+    let taskSubjects = [];
+    //دریافت اطلاعات از فایل اکسل
     const chartsSheetName = "Charts";
     workbooks.forEach((workbook) => {
       const chartsSheet = workbook.Sheets[chartsSheetName];
 
       if (chartsSheet) {
+        // خواندن موضوع تسک‌ها و تعداد استفاده از آن‌ها
+        for (let i = 42; i <= 51; i++) {
+          const taskSubjectCell = `C${i}`;
+          const taskCountCell = `D${i}`;
+          const taskSubject = chartsSheet[taskSubjectCell]
+            ? chartsSheet[taskSubjectCell].v
+            : "";
+          const taskCount = chartsSheet[taskCountCell]
+            ? chartsSheet[taskCountCell].v
+            : 0;
+          if (taskSubject) {
+            taskSubjects.push(taskSubject);
+            taskTypeCount[i - 42] = taskCount;
+            totalTasks += taskCount; // به‌روزرسانی تعداد کل تسک‌ها
+          }
+        }
+
+        // خواندن نام واحدها، تعداد تسک‌ها و زمان صرف شده
         for (let i = 42; i <= 53; i++) {
           const unitNameCell = `G${i}`;
           const taskCountCell = `H${i}`;
+          const timeSpentCell = `L${i}`;
           const unitName = chartsSheet[unitNameCell]
             ? chartsSheet[unitNameCell].v
             : "";
           const taskCount = chartsSheet[taskCountCell]
             ? chartsSheet[taskCountCell].v
             : 0;
+          const timeSpent = chartsSheet[timeSpentCell]
+            ? parseFloat(chartsSheet[timeSpentCell].v)
+            : 0;
           if (unitName) {
             unitTaskCounts[unitName] = taskCount;
-            unitTimeSpent[unitName] = 0; // مقدار اولیه زمان را صفر قرار می‌دهیم
+            unitTimeSpent[unitName] = timeSpent;
+            totalTimeSpent += timeSpent; // به‌روزرسانی زمان صرف شده کل
           }
         }
       }
-
-      // پردازش داده‌ها از شیت‌های دیگر (Report(A) و Report(K))
-      ["Report(A)", "Report(K)"].forEach((sheetName) => {
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-        if (taskSubjects.length === 0 && jsonData.length > 0) {
-          taskSubjects = jsonData[0].slice(5, 15);
-        }
-
-        jsonData.forEach((row, index) => {
-          if (index !== 0 && row[1]) {
-            allData.push(row);
-            totalTasks++;
-            const timeSpent = parseFloat(row[15]) || 0;
-            totalTimeSpent += timeSpent;
-            const unit = row[3];
-
-            if (unit) {
-              if (!unitTimeSpent[unit]) {
-                unitTimeSpent[unit] = 0;
-              }
-              unitTimeSpent[unit] += timeSpent;
-            }
-          }
-        });
-      });
     });
 
+    // افزودن واحدهایی که زمان یا تعداد تسک ندارند
+    for (let unit in unitTaskCounts) {
+      if (!unitTimeSpent[unit]) {
+        unitTimeSpent[unit] = 0;
+      }
+    }
+    //تبدیل زمان به ساعت و دقیقه
     let totalHours = 0;
     let remainingMinutes = 0;
     let timeSpentText = `${totalTimeSpent} دقیقه`;
@@ -354,71 +360,69 @@ const generateReport = async (
       remainingMinutes = totalTimeSpent % 60;
       timeSpentText = `${totalHours} ساعت و ${remainingMinutes} دقیقه`;
     }
-
-    // ساخت گزارش تعداد تسک‌ها بر اساس نوع
+    //ساخت جدول تعداد تسک ها بر اساس واحد و نمایش نتایج
     const taskReport = `
-  <div class="report-table">
-    <table border="1">
-      <thead>
-        <tr><th colspan="2" class="headTable">گزارش تعداد تسک‌ها بر اساس نوع</th></tr>
-        <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
-      </thead>
-      <tbody>
-        ${taskSubjects
-          .map(
-            (subject, index) =>
-              `<tr><td>${subject}</td><td class="animated-number" data-end-value="${taskTypeCount[index]}">0</td></tr>`
-          )
-          .join("")}
-      </tbody>
-    </table>
-  </div>
-`;
-
-    // ساخت گزارش زمانی و تعداد تسک‌ها بر اساس واحد
+      <div class="report-table">
+        <table border="1">
+          <thead>
+            <tr><th colspan="2" class="headTable">گزارش تعداد تسک‌ها بر اساس نوع</th></tr>
+            <tr><th>نوع تسک</th><th>تعداد استفاده شده</th></tr>
+          </thead>
+          <tbody>
+            ${taskSubjects
+              .map(
+                (subject, index) =>
+                  `<tr><td>${subject}</td><td class="animated-number" data-end-value="${taskTypeCount[index]}">0</td></tr>`
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+    //ساخت جدول گزارش زمانی و تعدادی هر واحد
     const timeReport = `
-  <div class="report-table">
-    <table border="1">
-      <thead>
-        <tr><th colspan="3" class="headTable">گزارش زمانی و تعداد تسک‌ها بر اساس واحد</th></tr>
-        <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th><th>تعداد تسک</th></tr>
-      </thead>
-      <tbody>
-        ${Object.keys(unitTimeSpent)
-          .map(
-            (unit) => `
-          <tr>
-            <td>${unit}</td>
-            <td class="animated-number" data-end-value="${
-              unitTimeSpent[unit]
-            }">0</td>
-            <td class="animated-number" data-end-value="${
-              unitTaskCounts[unit] || 0
-            }">0</td>
-          </tr>
-        `
-          )
-          .join("")}
-      </tbody>
-    </table>
-  </div>
-`;
-
+      <div class="report-table">
+        <table border="1">
+          <thead>
+            <tr><th colspan="3" class="headTable">گزارش زمانی و تعداد تسک‌ها بر اساس واحد</th></tr>
+            <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th><th>تعداد تسک</th></tr>
+          </thead>
+          <tbody>
+            ${Object.keys(unitTaskCounts)
+              .map(
+                (unit) => `
+              <tr>
+                <td>${unit}</td>
+                <td class="animated-number" data-end-value="${
+                  unitTimeSpent[unit]
+                }">0</td>
+                <td class="animated-number" data-end-value="${
+                  unitTaskCounts[unit] || 0
+                }">0</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+    //نمایش خلاصه گزارش
     const totalTasksContainer = document.createElement("div");
     totalTasksContainer.className = "total-tasks-container";
     if (totalTimeSpent > 100) {
       totalTasksContainer.innerHTML = `
-    <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
-    <p class="total-time-spent">مجموع زمان صرف شده: 
-      <span class="animated-number time-wrapper" data-end-value="${totalHours}">0</span> ساعت و 
-      <span class="animated-number time-wrapper" data-end-value="${remainingMinutes}">0</span> دقیقه
-    </p>
-  `;
+        <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
+        <p class="total-time-spent">مجموع زمان صرف شده: 
+          <span class="animated-number time-wrapper" data-end-value="${totalHours}">0</span> ساعت و 
+          <span class="animated-number time-wrapper" data-end-value="${remainingMinutes}">0</span> دقیقه
+        </p>
+      `;
     } else {
       totalTasksContainer.innerHTML = `
-    <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
-    <p class="total-time-spent">مجموع زمان صرف شده: <span class="animated-number time-wrapper" data-end-value="${totalTimeSpent}">0</span> دقیقه</p>
-  `;
+        <p class="total-tasks">تعداد کل تسک‌ها: <span class="animated-number number-wrapper" data-end-value="${totalTasks}">0</span></p>
+        <p class="total-time-spent">مجموع زمان صرف شده: <span class="animated-number time-wrapper" data-end-value="${totalTimeSpent}">0</span> دقیقه</p>
+      `;
     }
 
     const reportSummary = document.createElement("div");
@@ -436,7 +440,7 @@ const generateReport = async (
       endYear,
       endMonth
     );
-
+    //ساخت دکمه  بروزرسانی و تابع آن
     const updateButton = document.createElement("button");
     updateButton.id = "updateReportBtn";
     updateButton.textContent = "به‌روزرسانی گزارش";
@@ -481,6 +485,7 @@ const generateReport = async (
     hideLoading();
   }
 };
+// پرینت گزارش
 const generatePrintContent = (
   year,
   month,
@@ -514,6 +519,7 @@ const generatePrintContent = (
     </div>
   `;
 };
+//تابع پرینت  گزارش
 const printReport = () => {
   const year = document.getElementById("reportYear").value;
   const month = document.getElementById("reportMonth").value;
@@ -552,7 +558,7 @@ const printReport = () => {
     taskReport,
     timeReport
   );
-
+  //باز شدن پرینت گزارش و محتویات داخل پرینت
   const printWindow = window.open("", "_blank");
   printWindow.document.write(`
     <html>
