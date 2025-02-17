@@ -121,14 +121,14 @@ const createInputForm = (
   } else {
     return `
       <div class="form-group">
-        <input type="text" id="startYear" name="startYear" placeholder=" " value="${
+        <input type="text" id="reportStartYear" name="reportStartYear" placeholder=" " value="${
           startYear || ""
         }" required />
         <label for="startYear">سال شروع را وارد کنید</label>
       </div>
       <div class="form-group">
         <div class="select-wrapper">
-          <select id="startMonth" name="startMonth" required>
+          <select id="reportStartMonth" name="reportStartMonth" required>
             <option value="" disabled ${!startMonth ? "selected" : ""}></option>
             ${[
               "فروردین",
@@ -154,18 +154,18 @@ const createInputForm = (
               )
               .join("")}
           </select>
-          <label for="startMonth">ماه شروع را انتخاب کنید</label>
+          <label for="reportStartMonth">ماه شروع را انتخاب کنید</label>
         </div>
       </div>
       <div class="form-group">
-        <input type="text" id="endYear" name="endYear" placeholder=" " value="${
+        <input type="text" id="reportEndYear" name="reportEndYear" placeholder=" " value="${
           endYear || ""
         }" required />
-        <label for="endYear">سال پایان را وارد کنید</label>
+        <label for="reportEndYear">سال پایان را وارد کنید</label>
       </div>
       <div class="form-group">
         <div class="select-wrapper">
-          <select id="endMonth" name="endMonth" required>
+          <select id="reportEndMonth" name="reoprtEndMonth" required>
             <option value="" disabled ${!endMonth ? "selected" : ""}></option>
             ${[
               "فروردین",
@@ -191,7 +191,7 @@ const createInputForm = (
               )
               .join("")}
           </select>
-          <label for="endMonth">ماه پایان را انتخاب کنید</label>
+          <label for="reportEndMonth">ماه پایان را انتخاب کنید</label>
         </div>
       </div>
     `;
@@ -298,6 +298,7 @@ const generateReport = async (
     let taskTypeCount = Array(10).fill(0);
     let unitTaskCounts = {};
     let taskSubjects = [];
+    let unitNames = [];
     //دریافت اطلاعات از فایل اکسل
     const chartsSheetName = "Charts";
     workbooks.forEach((workbook) => {
@@ -315,8 +316,11 @@ const generateReport = async (
             ? chartsSheet[taskCountCell].v
             : 0;
           if (taskSubject) {
-            taskSubjects.push(taskSubject);
-            taskTypeCount[i - 42] = taskCount;
+            let index = i - 42;
+            if (taskSubjects[index] === undefined) {
+              taskSubjects.push(taskSubject);
+            }
+            taskTypeCount[index] += taskCount;
             totalTasks += taskCount; // به‌روزرسانی تعداد کل تسک‌ها
           }
         }
@@ -335,9 +339,17 @@ const generateReport = async (
           const timeSpent = chartsSheet[timeSpentCell]
             ? parseFloat(chartsSheet[timeSpentCell].v)
             : 0;
+
           if (unitName) {
-            unitTaskCounts[unitName] = taskCount;
-            unitTimeSpent[unitName] = timeSpent;
+            let index = i - 42;
+            if (unitNames[index] === undefined) {
+              unitNames.push(unitName);
+              unitTaskCounts[index] = taskCount;
+              unitTimeSpent[index] = timeSpent;
+            } else {
+              unitTaskCounts[index] += taskCount;
+              unitTimeSpent[index] += timeSpent;
+            }
             totalTimeSpent += timeSpent; // به‌روزرسانی زمان صرف شده کل
           }
         }
@@ -388,16 +400,16 @@ const generateReport = async (
             <tr><th>واحد</th><th>زمان صرف شده (دقیقه)</th><th>تعداد تسک</th></tr>
           </thead>
           <tbody>
-            ${Object.keys(unitTaskCounts)
+            ${unitNames
               .map(
-                (unit) => `
+                (unitName, index) => `
               <tr>
-                <td>${unit}</td>
+                <td>${unitName}</td>
                 <td class="animated-number" data-end-value="${
-                  unitTimeSpent[unit]
+                  unitTimeSpent[index]
                 }">0</td>
                 <td class="animated-number" data-end-value="${
-                  unitTaskCounts[unit] || 0
+                  unitTaskCounts[index] || 0
                 }">0</td>
               </tr>
             `
@@ -450,10 +462,10 @@ const generateReport = async (
         const newMonth = document.getElementById("reportMonth").value;
         generateReport(newYear, newMonth);
       } else {
-        const newStartYear = document.getElementById("startYear").value;
-        const newStartMonth = document.getElementById("startMonth").value;
-        const newEndYear = document.getElementById("endYear").value;
-        const newEndMonth = document.getElementById("endMonth").value;
+        const newStartYear = document.getElementById("reportStartYear").value;
+        const newStartMonth = document.getElementById("reportStartMonth").value;
+        const newEndYear = document.getElementById("reportEndYear").value;
+        const newEndMonth = document.getElementById("reportEndMonth").value;
         generateReport(
           null,
           null,
